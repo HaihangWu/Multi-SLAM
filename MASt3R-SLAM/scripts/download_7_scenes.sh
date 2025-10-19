@@ -23,9 +23,7 @@ for url in "${urls[@]}"; do
     scene_name="${file_name%.*}"
     echo "Unzipping remaining sequences in $scene_name..."
     for seq_dir in "$dest/$scene_name"/seq-*; do
-        if [ "$(basename "$seq_dir")" != "seq-01" ]; then
-            rm -rf "$seq_dir"
-        fi
+            unzip "$seq_dir" -d "$dest/${file_name%.*}"
     done
 done
 
