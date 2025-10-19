@@ -9,10 +9,10 @@
 # --partition=fos-gpu-l40s
 # --qos=fos
 
-#SBATCH --partition=feit-gpu-a100
-#SBATCH --qos=feit
+# --partition=feit-gpu-a100
+# --qos=feit
 
-# -p gpu-a100
+#SBATCH -p gpu-a100
 
 # -p gpu-h100
 
