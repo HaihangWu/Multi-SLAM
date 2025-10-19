@@ -42,16 +42,12 @@ eval "$(conda shell.bash hook)"
 conda deactivate
 conda activate slam
 
-# === Check CUDA and PyTorch before building ===
-echo "=== CUDA and PyTorch info ==="
-nvcc --version
-python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.is_available())"
 
 # === Go to project directory ===
 cd /data/gpfs/projects/punim0512/Haihangw-Projects/Multi-SLAM/MASt3R-SLAM
 
 # === Build the package in editable mode ===
-pip install --no-build-isolation -e .
+pip install -e thirdparty/mast3r.
 
 echo "Installation complete."
 
