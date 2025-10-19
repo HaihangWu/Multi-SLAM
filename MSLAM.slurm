@@ -12,15 +12,15 @@
 # --partition=feit-gpu-a100
 # --qos=feit
 
-# -p gpu-a100
+#SBATCH -p gpu-a100
 
 # -p gpu-h100
 
-#SBATCH --partition deeplearn
-#SBATCH --qos gpgpudeeplearn
+# --partition deeplearn
+# --qos gpgpudeeplearn
 
 # Request different amount of resources for different nodes
-#SBATCH --constraint=[dlg4|dlg5|dlg6]
+# --constraint=[dlg4|dlg5|dlg6]
 # --constraint=[dlg4]
 # --constraint=[dlg5]
 # --constraint=[dlg6]
@@ -43,6 +43,6 @@ conda deactivate
 conda activate slam
 
 
-bash ./scripts/eval_7_scenes.sh
+bash ./scripts/eval_7_scenes.sh --no-calib
 
 #python ours_prune.py --dataset imagenet --eval-dataset corrupted_imagenet --dataset_path ImageNet-C/frost --finetune_method ours --model resnet34 --num_sample_prune 640  --num_sample_finetune 960  --seed 2021 --epoch 500 --num_rm_blocks 3 --FT MiR
