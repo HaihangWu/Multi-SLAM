@@ -20,10 +20,15 @@ for url in "${urls[@]}"; do
     echo "Unzipping $file_name..."
     unzip "$dest/$file_name" -d "$dest"
     #unzip "$dest/${file_name%.*}/seq-01" -d "$dest/${file_name%.*}"
-    for seq_dir in "$dest/$scene_name"/seq-*; do
-        if [ "$(basename "$seq_dir")" != "seq-01" ]; then
-            unzip "$seq_dir"/* -d "$seq_dir"
-        fi
+    for url in "${urls[@]}"; do
+        file_name=$(basename "$url")
+        scene_name="${file_name%.*}"
+        echo "Unzipping remaining sequences in $scene_name..."
+        for seq_dir in "$dest/$scene_name"/seq-*; do
+            if [ "$(basename "$seq_dir")" != "seq-01" ]; then
+                unzip "$seq_dir"/* -d "$seq_dir"
+            fi
+        done
     done
 done
 
