@@ -19,6 +19,11 @@ for url in "${urls[@]}"; do
     #wget "$url" -O "$dest/$file_name"
     echo "Unzipping $file_name..."
     unzip "$dest/$file_name" -d "$dest"
-    unzip "$dest/${file_name%.*}/seq-01" -d "$dest/${file_name%.*}"
+    #unzip "$dest/${file_name%.*}/seq-01" -d "$dest/${file_name%.*}"
+    for seq_dir in "$dest/$scene_name"/seq-*; do
+        if [ "$(basename "$seq_dir")" != "seq-01" ]; then
+            unzip "$seq_dir"/* -d "$seq_dir"
+        fi
+    done
 done
 
