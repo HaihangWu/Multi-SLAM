@@ -1,0 +1,6 @@
+[submodule "MASt3R-SLAM/thirdparty/eigen"]
+	path = MASt3R-SLAM/thirdparty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "MASt3R-SLAM/thirdparty/in3d/thirdparty/pyimgui"]
+	path = MASt3R-SLAM/thirdparty/in3d/thirdparty/pyimgui
+	url = https://github.com/pyimgui/pyimgui.git
