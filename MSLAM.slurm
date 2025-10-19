@@ -43,6 +43,6 @@ conda deactivate
 conda activate slam
 
 
-bash ./scripts/eval_7_scenes.sh
+bash ./scripts/download_7_scenes.sh
 
 #python ours_prune.py --dataset imagenet --eval-dataset corrupted_imagenet --dataset_path ImageNet-C/frost --finetune_method ours --model resnet34 --num_sample_prune 640  --num_sample_finetune 960  --seed 2021 --epoch 500 --num_rm_blocks 3 --FT MiR

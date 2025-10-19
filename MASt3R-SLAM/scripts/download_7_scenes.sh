@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dest="datasets/7-scenes"
+dest="/data/gpfs/projects/punim0512/data/7-scenes/"
 mkdir -p "$dest"
 
 urls=(
@@ -15,8 +15,8 @@ urls=(
 
 for url in "${urls[@]}"; do
     file_name=$(basename "$url")
-    echo "Downloading $file_name..."
-    wget "$url" -O "$dest/$file_name"
+    #echo "Downloading $file_name..."
+    #wget "$url" -O "$dest/$file_name"
     echo "Unzipping $file_name..."
     unzip "$dest/$file_name" -d "$dest"
     unzip "$dest/${file_name%.*}/seq-01" -d "$dest/${file_name%.*}"
