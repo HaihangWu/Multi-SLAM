@@ -15,15 +15,19 @@ urls=(
 
 for url in "${urls[@]}"; do
     file_name=$(basename "$url")
-    #echo "Downloading $file_name..."
-    #wget "$url" -O "$dest/$file_name"
-#    echo "Unzipping $file_name..."
-#    unzip "$dest/$file_name" -d "$dest"
-    #unzip "$dest/${file_name%.*}/seq-01" -d "$dest/${file_name%.*}"
     scene_name="${file_name%.*}"
-    echo "Unzipping remaining sequences in $scene_name..."
-    for seq_dir in "$dest/$scene_name"/seq-*; do
-            unzip "$seq_dir" -d "$dest/${file_name%.*}"
+    scene_path="$dest/$scene_name"
+
+    echo "Unzipping $file_name..."
+    unzip "$dest/$file_name" -d "$dest"
+    rm -f "$dest/$file_name"  # Delete main scene zip after unzip
+
+    # Unzip each sequence inside the scene folder and delete its zip
+    for seq_zip in "$scene_path"/seq-*.zip; do
+        [ -f "$seq_zip" ] || continue  # Skip if no seq zip
+        echo "Unzipping $(basename "$seq_zip")..."
+        unzip "$seq_zip" -d "$scene_path"
+        rm -f "$seq_zip"  # Delete sequence zip after unzip
     done
 done
 
