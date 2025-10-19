@@ -47,7 +47,7 @@ conda activate slam
 cd /data/gpfs/projects/punim0512/Haihangw-Projects/Multi-SLAM/MASt3R-SLAM
 
 # === Build the package in editable mode ===
-pip install -e thirdparty/mast3r.
+pip install -e thirdparty/mast3r
 
 echo "Installation complete."
 
