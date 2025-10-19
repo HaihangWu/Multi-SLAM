@@ -1,5 +1,5 @@
 #!/bin/bash
-dataset_path="datasets/7-scenes/"
+dataset_path="/data/gpfs/projects/punim0512/data/7-scenes/"
 datasets=(
     chess
     fire

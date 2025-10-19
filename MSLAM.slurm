@@ -43,13 +43,6 @@ conda deactivate
 conda activate slam
 
 
-# === Go to project directory ===
-cd /data/gpfs/projects/punim0512/Haihangw-Projects/Multi-SLAM/MASt3R-SLAM
-
-# === Build the package in editable mode ===
-pip install -e thirdparty/mast3r
-
-echo "Installation complete."
-
+bash ./scripts/eval_7_scenes.sh
 
 #python ours_prune.py --dataset imagenet --eval-dataset corrupted_imagenet --dataset_path ImageNet-C/frost --finetune_method ours --model resnet34 --num_sample_prune 640  --num_sample_finetune 960  --seed 2021 --epoch 500 --num_rm_blocks 3 --FT MiR
