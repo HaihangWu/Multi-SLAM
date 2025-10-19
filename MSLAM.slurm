@@ -6,21 +6,21 @@
 #SBATCH --job-name="example.py"
 
 # 48GB GPU
-#SBATCH --partition=fos-gpu-l40s
-#SBATCH --qos=fos
+# --partition=fos-gpu-l40s
+# --qos=fos
 
-# --partition=feit-gpu-a100
-# --qos=feit
+#SBATCH --partition=feit-gpu-a100
+#SBATCH --qos=feit
 
 # -p gpu-a100
 
 # -p gpu-h100
 
-#SBATCH --partition deeplearn
-#SBATCH --qos gpgpudeeplearn
+# --partition deeplearn
+# --qos gpgpudeeplearn
 
 # Request different amount of resources for different nodes
-#SBATCH --constraint=[dlg4|dlg5|dlg6]
+# --constraint=[dlg4|dlg5|dlg6]
 # --constraint=[dlg4]
 # --constraint=[dlg5]
 # --constraint=[dlg6]
@@ -35,7 +35,7 @@
 # --gpus-per-task=1  # number of gpus per task
 
 # The maximum running time of the job in days-hours:mins:sec
-#SBATCH --time=00-2:00:00
+#SBATCH --time=00-1:00:00
 
 module load Anaconda3/2024.02-1
 eval "$(conda shell.bash hook)"
