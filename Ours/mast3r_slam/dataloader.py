@@ -147,6 +147,31 @@ class SevenScenesDataset(MonocularDataset):
             self.img_size, 640, 480, [fx, fy, cx, cy]
         )
 
+class MAADTDataset(MonocularDataset):
+    def __init__(self, dataset_path):
+        super().__init__()
+        self.dataset_path = pathlib.Path(dataset_path)
+        self.rgb_files = natsorted(
+            list((self.dataset_path).glob("frame*.jpg"))
+        )
+        self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
+        fx, fy, cx, cy = 280, 280, 255.5, 255.5
+        self.camera_intrinsics = Intrinsics.from_calib(
+            self.img_size, 512, 512, [fx, fy, cx, cy]
+        )
+
+class MAReplicaDataset(MonocularDataset):
+    def __init__(self, dataset_path):
+        super().__init__()
+        self.dataset_path = pathlib.Path(dataset_path)
+        self.rgb_files = natsorted(
+            list((self.dataset_path).glob("frame*.jpg"))
+        )
+        self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
+        fx, fy, cx, cy = 600.0, 600.0, 599.5, 339.5
+        self.camera_intrinsics = Intrinsics.from_calib(
+            self.img_size, 1200, 680, [fx, fy, cx, cy]
+        )
 
 class RealsenseDataset(MonocularDataset):
     def __init__(self):
@@ -331,6 +356,8 @@ def load_dataset(dataset_path):
         return RealsenseDataset()
     if "webcam" in split_dataset_type:
         return Webcam()
+    if "MAADT" in split_dataset_type:
+        return MAADTDataset(dataset_path)
 
     ext = split_dataset_type[-1].split(".")[-1]
     if ext in ["mp4", "avi", "MOV", "mov"]:
