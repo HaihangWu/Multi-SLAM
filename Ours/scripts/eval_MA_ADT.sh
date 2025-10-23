@@ -1,5 +1,5 @@
 #!/bin/bash
-dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/room0/agent0/"
+dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/room0/agent_0/"
 datasets=(
     results
 )
