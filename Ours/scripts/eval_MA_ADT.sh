@@ -29,11 +29,12 @@ done
 
 if [ "$print_only" = false ]; then
     for dataset in ${datasets[@]}; do
-        dataset_name="$dataset_path""$dataset"/
+#        dataset_name="$dataset_path""$dataset"/
+        full_dataset_path="$dataset_path""results"/
         if [ "$no_calib" = true ]; then
-            python main.py --dataset $dataset_name --no-viz --save-as MA_ADT/no_calib/$dataset --config config/eval_no_calib.yaml
+            python main.py --dataset $full_dataset_path --no-viz --save-as MA_ADT/no_calib/$dataset --config config/eval_no_calib.yaml
         else
-            python main.py --dataset $dataset_name --no-viz --save-as MA_ADT/calib/$dataset --config config/eval_calib.yaml
+            python main.py --dataset $full_dataset_path --no-viz --save-as MA_ADT/calib/$dataset --config config/eval_calib.yaml
         fi
     done
 fi
