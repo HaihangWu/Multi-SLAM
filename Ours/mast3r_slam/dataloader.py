@@ -50,6 +50,7 @@ class MonocularDataset(torch.utils.data.Dataset):
         return img.astype(self.dtype) / 255.0
 
     def get_img_shape(self):
+        print("num of images:",len(self.rgb_files))
         img = self.read_img(0)
         raw_img_shape = img.shape
         img = resize_img(img, self.img_size)
