@@ -50,7 +50,6 @@ class MonocularDataset(torch.utils.data.Dataset):
         return img.astype(self.dtype) / 255.0
 
     def get_img_shape(self):
-        print("num of images:",len(self.rgb_files))
         img = self.read_img(0)
         raw_img_shape = img.shape
         img = resize_img(img, self.img_size)
@@ -155,6 +154,7 @@ class MAADTDataset(MonocularDataset):
         self.rgb_files = natsorted(
             list((self.dataset_path).glob("*.jpg"))
         )
+        print("dataset_path",self.dataset_path,"num of images:",len(self.rgb_files))
         self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
         fx, fy, cx, cy = 280, 280, 255.5, 255.5
         self.camera_intrinsics = Intrinsics.from_calib(
