@@ -1,7 +1,12 @@
 #!/bin/bash
 dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/room0/agent_0/"
 datasets=(
-    results
+    room0_agent0
+    #room0_agent1
+    #room0_agent2
+    #room1_agent0
+    #room1_agent1
+    #room1_agent2
 )
 
 no_calib=false
@@ -37,7 +42,7 @@ fi
 #    dataset_name="$dataset_path""$dataset"/
 #    echo ${dataset_name}
 #    if [ "$no_calib" = true ]; then
-#        evo_ape tum groundtruths/MA_ADT$dataset.txt logs/MA_ADT/no_calib/$dataset/$dataset.txt -as
+#        evo_ape tum groundtruths/MA_ADT/$dataset.txt logs/MA_ADT/no_calib/$dataset/$dataset.txt -as
 #    else
 #        evo_ape tum groundtruths/MA_ADT/$dataset.txt logs/MA_ADT/calib/$dataset/$dataset.txt -as
 #    fi
