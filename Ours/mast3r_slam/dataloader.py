@@ -155,7 +155,6 @@ class MAADTDataset(MonocularDataset):
             list((self.dataset_path).glob("*.jpg"))
         )
         print("dataset_path",self.dataset_path,"num of images:",len(self.rgb_files))
-        print()
         self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
         fx, fy, cx, cy = 280, 280, 255.5, 255.5
         self.camera_intrinsics = Intrinsics.from_calib(
@@ -358,8 +357,10 @@ def load_dataset(dataset_path):
         return RealsenseDataset()
     if "webcam" in split_dataset_type:
         return Webcam()
-    if "MAADT" in split_dataset_type:
+    if "MA_ADT" in split_dataset_type:
         return MAADTDataset(dataset_path)
+    if  "MA_Replica" in split_dataset_type:
+        return MAADTDataset(MAReplicaDataset)
 
     ext = split_dataset_type[-1].split(".")[-1]
     if ext in ["mp4", "avi", "MOV", "mov"]:
