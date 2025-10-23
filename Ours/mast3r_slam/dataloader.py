@@ -152,7 +152,7 @@ class MAADTDataset(MonocularDataset):
         super().__init__()
         self.dataset_path = pathlib.Path(dataset_path)
         self.rgb_files = natsorted(
-            list((self.dataset_path).glob("*.jpg"))
+            list((self.dataset_path).glob("frame*.jpg"))
         )
         print("dataset_path",self.dataset_path,"num of images:",len(self.rgb_files))
         self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
