@@ -155,6 +155,7 @@ class MAADTDataset(MonocularDataset):
             list((self.dataset_path).glob("*.jpg"))
         )
         print("dataset_path",self.dataset_path,"num of images:",len(self.rgb_files))
+        print()
         self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
         fx, fy, cx, cy = 280, 280, 255.5, 255.5
         self.camera_intrinsics = Intrinsics.from_calib(
