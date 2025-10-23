@@ -12,12 +12,12 @@
 # --partition=feit-gpu-a100
 # --qos=feit
 
-# -p gpu-a100
+#SBATCH -p gpu-a100
 
 # -p gpu-h100
 
-#SBATCH --partition deeplearn
-#SBATCH --qos gpgpudeeplearn
+# --partition deeplearn
+# --qos gpgpudeeplearn
 
 # Request different amount of resources for different nodes
 # --constraint=[dlg4|dlg5|dlg6]
