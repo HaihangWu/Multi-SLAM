@@ -1,0 +1,3 @@
+[submodule "thirdparty/in3d/thirdparty/pyimgui"]
+	path = thirdparty/in3d/thirdparty/pyimgui
+	url = https://github.com/pyimgui/pyimgui.git
