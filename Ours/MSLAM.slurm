@@ -26,7 +26,7 @@
 # --constraint=[dlg6]
 # --nodes=1                # node count
 #SBATCH --ntasks-per-node=1      # total number of tasks per node
-#SBATCH --gres=gpu:1            # number of gpus per node
+#SBATCH --gres=gpu:2            # number of gpus per node
 #SBATCH --cpus-per-task=12        # cpu-cores per task (>1 if multi-threaded tasks)
 #SBATCH --mem-per-cpu=8G
 
@@ -35,7 +35,7 @@
 # --gpus-per-task=1  # number of gpus per task
 
 # The maximum running time of the job in days-hours:mins:sec
-#SBATCH --time=00-00:30:00
+#SBATCH --time=00-00:15:00
 
 module load Anaconda3/2024.02-1
 eval "$(conda shell.bash hook)"

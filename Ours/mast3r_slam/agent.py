@@ -194,6 +194,7 @@ class Agent:
                 cv2.imwrite(f"{savedir}/{i}.png", frame)
 
     def run_backend(self, cfg, K):
+        print(f"Agent {self.agent_id} is optimizing...")
         set_global_config(cfg)
 
         device = self.keyframes[self.agent_id].device
