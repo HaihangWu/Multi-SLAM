@@ -30,6 +30,7 @@ class Agent:
         self.device = device
         self.save_frames = False
         self.datetime_now = str(datetime.datetime.now()).replace(" ", "_")
+        self.save_directory = os.path.join(self.args.save_as, self.args.datasets[self.agent_id])
         self.dataset = dataset
         print("agent",config)
         self.dataset.subsample(config["dataset"]["subsample"])
@@ -67,7 +68,7 @@ class Agent:
             self.keyframes[agent_id].set_intrinsics(K)
 
         if self.dataset.save_results:
-            save_dir, seq_name = eval.prepare_savedir(args, self.dataset)
+            save_dir, seq_name = eval.prepare_savedir(self.save_directory, self.dataset)
             traj_file = save_dir / f"{seq_name}.txt"
             recon_file = save_dir / f"{seq_name}.ply"
             if traj_file.exists():
@@ -173,8 +174,7 @@ class Agent:
             i += 1
 
         if self.dataset.save_results:
-            save_directory=os.path.join(self.args.save_as, self.args.datasets[self.agent_id])
-            save_dir, seq_name = eval.prepare_savedir(save_directory, self.dataset)
+            save_dir, seq_name = eval.prepare_savedir(self.save_directory, self.dataset)
             eval.save_traj(save_dir, f"{seq_name}.txt", self.dataset.timestamps, self.keyframes[self.agent_id])
             eval.save_reconstruction(
                 save_dir,
