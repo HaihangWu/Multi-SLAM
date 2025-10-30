@@ -88,16 +88,17 @@ class Agent:
     #     # Each agent’s main process
 
     def run_frontend(self,cfg):
+        set_global_config(cfg)
+        print(f"Agent {self.agent_id} is tracking...")
+        device = self.keyframes[self.agent_id].device
+
         dev_idx = int(self.device.split(':')[-1])
         torch.cuda.set_device(dev_idx)
         os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
         self.model = load_mast3r(device=None)  # load on CPU if loader supports it
-        self.model = self.model.to(self.device)
-        self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], self.device)
+        self.model = self.model.to(device)
+        self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], device)
 
-        set_global_config(cfg)
-        print(f"Agent {self.agent_id} is tracking...")
-        device = self.keyframes[self.agent_id].device
         i = 0
         fps_timer = time.time()
 
@@ -202,16 +203,16 @@ class Agent:
                 cv2.imwrite(f"{savedir}/{i}.png", frame)
 
     def run_backend(self, cfg, K):
+        print(f"Agent {self.agent_id} is optimizing...")
+        set_global_config(cfg)
+        device = self.keyframes[self.agent_id].device
+
         dev_idx = int(self.device.split(':')[-1])
         torch.cuda.set_device(dev_idx)
         os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
         self.model = load_mast3r(device=None)  # load on CPU if loader supports it
-        self.model = self.model.to(self.device)
+        self.model = self.model.to(device)
 
-        print(f"Agent {self.agent_id} is optimizing...")
-        set_global_config(cfg)
-
-        device = self.keyframes[self.agent_id].device
         factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, device)
         retrieval_database = load_retriever(self.model,device=device)
 
