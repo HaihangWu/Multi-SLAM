@@ -12,19 +12,19 @@
 # --partition=feit-gpu-a100
 # --qos=feit
 
-# -p gpu-a100
+#SBATCH -p gpu-a100
 
 # -p gpu-h100
 
-#SBATCH --partition deeplearn
-#SBATCH --qos gpgpudeeplearn
+# --partition deeplearn
+# --qos gpgpudeeplearn
 
 # Request different amount of resources for different nodes
-#SBATCH --constraint=[dlg4|dlg5|dlg6]
+# --constraint=[dlg4|dlg5|dlg6]
 # --constraint=[dlg4]
 # --constraint=[dlg5]
 # --constraint=[dlg6]
-#SBATCH --nodes=1                # node count
+# --nodes=1                # node count
 #SBATCH --ntasks-per-node=1      # total number of tasks per node
 #SBATCH --gres=gpu:1            # number of gpus per node
 #SBATCH --cpus-per-task=12        # cpu-cores per task (>1 if multi-threaded tasks)
