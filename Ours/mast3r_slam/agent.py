@@ -20,6 +20,7 @@ import tqdm
 import time
 import cv2
 import datetime
+import os
 
 class Agent:
     def __init__(self, agent_id, args, dataset, states, keyframes, frontend_procs,
@@ -172,7 +173,8 @@ class Agent:
             i += 1
 
         if self.dataset.save_results:
-            save_dir, seq_name = eval.prepare_savedir(self.args, self.dataset)
+            save_directory=os.path.join(self.args.save_as, self.args.datasets[self.agent_id])
+            save_dir, seq_name = eval.prepare_savedir(save_directory, self.dataset)
             eval.save_traj(save_dir, f"{seq_name}.txt", self.dataset.timestamps, self.keyframes[self.agent_id])
             eval.save_reconstruction(
                 save_dir,

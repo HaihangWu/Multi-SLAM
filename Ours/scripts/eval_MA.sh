@@ -33,9 +33,9 @@ if [ "$print_only" = false ]; then
 #        dataset_name="$dataset_path""$dataset"/
 #        echo "Processing dataset: $full_dataset_path"
         if [ "$no_calib" = true ]; then
-            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as MA_ADT/no_calib/$dataset --config config/eval_no_calib.yaml
+            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as MA_ADT/no_calib/ --config config/eval_no_calib.yaml
         else
-            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as MA_ADT/calib/$dataset --config config/eval_calib.yaml
+            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as MA_ADT/calib/ --config config/eval_calib.yaml
         fi
 #    wait
 fi
