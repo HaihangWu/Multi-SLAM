@@ -30,6 +30,7 @@ class Agent:
         self.save_frames = False
         self.datetime_now = str(datetime.datetime.now()).replace(" ", "_")
         self.dataset = dataset
+        print("agent",config)
         self.dataset.subsample(config["dataset"]["subsample"])
         h, w = self.dataset.get_img_shape()[0]
 
@@ -75,8 +76,8 @@ class Agent:
 
         self.tracker = FrameTracker(self.model, self.keyframes[agent_id], device)
         self.last_msg = WindowMsg()
-        frontend_procs.append(mp.Process(target=self.run_frontend))
-        backend_procs.append(mp.Process(target=self.run_backend,args=(K,)))
+        frontend_procs.append(mp.Process(target=self.run_frontend,args=(config, )))
+        backend_procs.append(mp.Process(target=self.run_backend,args=(config, K)))
 
         # self.initialize_agent()
         # self.model = model.to(device)
@@ -84,7 +85,8 @@ class Agent:
     # def initialize_agent(self,args):
     #     # Each agent’s main process
 
-    def run_frontend(self):
+    def run_frontend(self,cfg):
+        set_global_config(cfg)
         print(f"Agent {self.agent_id} is tracking...")
         i = 0
         fps_timer = time.time()
@@ -189,8 +191,8 @@ class Agent:
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(f"{savedir}/{i}.png", frame)
 
-    def run_backend(self, K):
-        set_global_config(self.cfg)
+    def run_backend(self, cfg, K):
+        set_global_config(cfg)
 
         device = self.keyframes[self.agent_id].device
         factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, device)

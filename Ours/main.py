@@ -20,7 +20,6 @@ class MultiAgentSystem:
         # Initialize pipes and agents
         load_config(args.config)
         num_agents=len(args.datasets)
-        print(config,num_agents)
         for agent_id in range(num_agents):
             dataset =args.datasets[agent_id]
             parts = dataset.split('_', 1)  # split at first '_'
