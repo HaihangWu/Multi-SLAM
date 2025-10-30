@@ -90,6 +90,7 @@ class Agent:
     def run_frontend(self,cfg):
         set_global_config(cfg)
         print(f"Agent {self.agent_id} is tracking...")
+        device = self.keyframes[self.agent_id].device
         i = 0
         fps_timer = time.time()
 
@@ -120,11 +121,11 @@ class Agent:
 
             # get frames last camera pose
             T_WC = (
-                lietorch.Sim3.Identity(1, device=self.device)
+                lietorch.Sim3.Identity(1, device=device)
                 if i == 0
                 else self.states[self.agent_id].get_frame().T_WC
             )
-            frame = create_frame(i, img, T_WC, img_size=self.dataset.img_size, device=self.device)
+            frame = create_frame(i, img, T_WC, img_size=self.dataset.img_size, device=device)
 
             if mode == Mode.INIT:
                 # Initialize via mono inference, and encoded features neeed for database
@@ -199,7 +200,7 @@ class Agent:
 
         device = self.keyframes[self.agent_id].device
         factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, device)
-        retrieval_database = load_retriever(self.model)
+        retrieval_database = load_retriever(self.model,device=device)
 
         mode = self.states[self.agent_id].get_mode()
         while mode is not Mode.TERMINATED:
