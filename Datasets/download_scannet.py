@@ -9,7 +9,7 @@ from pathlib import Path
 def download_with_resume(url, dest_path):
     dest_path = Path(dest_path)
     temp_path = dest_path.with_suffix(dest_path.suffix + ".part")
-    max_retries=1
+    max_retries=3
 
     # Skip if already fully downloaded
     if dest_path.exists() and not temp_path.exists():
@@ -63,15 +63,15 @@ def main():
     #     return
 
     Path(r"E:\scannet").mkdir(parents=True, exist_ok=True)
-    download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/b34888ed0f754554f4a9c25d0a15e493ac8186580078cdf19ed0e463323dce9b?Expires=1761713983&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=cSE82WGLq%2FOxC1gQIruUed4bgLQ%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-00%22&response-content-type=application%2Foctet-stream", r"E:\scannet\scans.tar.part-00.zip")
+    #download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/b34888ed0f754554f4a9c25d0a15e493ac8186580078cdf19ed0e463323dce9b?Expires=1761713983&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=cSE82WGLq%2FOxC1gQIruUed4bgLQ%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-00%22&response-content-type=application%2Foctet-stream", r"E:\scannet\scans.tar.part-00.zip")
 
-    download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/de9f0733a91a1ea74e7d69d5e72104f7001ec531b8d6bede17583bab945892b1?Expires=1761719233&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=2JYs21YWSCIYqvayHHu1ozlgquM%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-01%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-01.zip")
+    #download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/de9f0733a91a1ea74e7d69d5e72104f7001ec531b8d6bede17583bab945892b1?Expires=1761719233&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=2JYs21YWSCIYqvayHHu1ozlgquM%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-01%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-01.zip")
 
-    download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/9de97605678b9faa3a02ad534cc5d8986102b6264ab4a5f825f83528141e3f35?Expires=1761719175&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=q667%2BB3BWlnsHJNRCcmhr59UGiA%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-02%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-02.zip")
+    #download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/9de97605678b9faa3a02ad534cc5d8986102b6264ab4a5f825f83528141e3f35?Expires=1761719175&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=q667%2BB3BWlnsHJNRCcmhr59UGiA%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-02%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-02.zip")
 
     download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/1574c9d9767582eba661ae4307c98fd9b1a31404f301d353d0d4dc96ca3fa6c6?Expires=1761719260&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=ieZwVCruLB5kaOe7lS7xp4Qz2Vw%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-03%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-03.zip")
 
-    download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/d9d07d0e33102e370c89dd15d59998114b5a4d68d763660df0daa7adcb6681f7?Expires=1761719269&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=f9Dn4%2F5pMDyH2g5rNnZ6zRtTbSo%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-04%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-04.zip")
+    #download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/d9d07d0e33102e370c89dd15d59998114b5a4d68d763660df0daa7adcb6681f7?Expires=1761719269&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=f9Dn4%2F5pMDyH2g5rNnZ6zRtTbSo%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-04%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-04.zip")
 
     download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/ca95d565201cce3dc85b30f8fef385e16be3a8120cd0848605ebff3f75a308a7?Expires=1761719278&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=m2UnT8xeGN9k6b6TTSroTyCViwE%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-05%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-05.zip")
 
@@ -79,7 +79,7 @@ def main():
 
     download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/e14284bd41adfc98eb185d47c594919f0cbd38c1a75cc7a53f6706975f995c32?Expires=1761719279&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=vawPi5VUCB%2FJy7%2BafwTTPBkdmXY%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-07%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-07.zip")
 
-    download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/910e53ba95cda02a466d8a77099a3e1346596f241cb6b00e20c65c09e274ea2c?Expires=1761719279&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=Fkcr2LIQS2AvPYpefDYy3Ylnkmk%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-08%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-08.zip")
+    #download_with_resume("https://cdn-xlab-data.openxlab.org.cn/objects/910e53ba95cda02a466d8a77099a3e1346596f241cb6b00e20c65c09e274ea2c?Expires=1761719279&OSSAccessKeyId=LTAI5tSqABbitQcgeNNd8dAE&Signature=Fkcr2LIQS2AvPYpefDYy3Ylnkmk%3D&response-content-disposition=attachment%3B%20filename%3D%22scans.tar.part-08%22&response-content-type=application%2Foctet-stream",r"E:\scannet\scans.tar.part-08.zip")
 
 
 if __name__ == "__main__":

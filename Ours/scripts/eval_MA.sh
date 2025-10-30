@@ -1,5 +1,5 @@
 #!/bin/bash
-dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/"
+base_dataset_path ="/data/gpfs/projects/punim0512/data/MA_ADT/"
 datasets=(
     room0_agent_0
     room0_agent_1
@@ -28,24 +28,20 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [ "$print_only" = false ]; then
-    for dataset in ${datasets[@]}; do
+#    for i in 0 1; do
+#    for dataset in ${datasets[@]}; do
 #        dataset_name="$dataset_path""$dataset"/
-        scene=$(echo "$dataset" | cut -d'_' -f1)
-        agent=$(echo "$dataset" | cut -d'_' -f2-)
-
-        # Reconstruct the new folder structure: room0/agent_0/
-        full_dataset_path="${dataset_path}${scene}/${agent}/results/"
-        echo "Processing dataset: $full_dataset_path"
+#        echo "Processing dataset: $full_dataset_path"
         if [ "$no_calib" = true ]; then
-            python main.py --dataset $full_dataset_path --no-viz --save-as MA_ADT/no_calib/$dataset --config config/eval_no_calib.yaml
+            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as MA_ADT/no_calib/$dataset --config config/eval_no_calib.yaml
         else
-            python main.py --dataset $full_dataset_path --no-viz --save-as MA_ADT/calib/$dataset --config config/eval_calib.yaml
+            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as MA_ADT/calib/$dataset --config config/eval_calib.yaml
         fi
-    done
+#    wait
 fi
 
 for dataset in ${datasets[@]}; do
-    dataset_name="$dataset_path""$dataset"/
+    dataset_name="$base_dataset_path""$dataset"/
     echo ${dataset_name}
     if [ "$no_calib" = true ]; then
         evo_ape tum groundtruths/MA_ADT/$dataset.txt logs/MA_ADT/no_calib/$dataset/results.txt -as
