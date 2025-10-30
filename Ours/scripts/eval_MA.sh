@@ -1,5 +1,5 @@
 #!/bin/bash
-base_dataset_path ="/data/gpfs/projects/punim0512/data/MA_ADT/"
+base_dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/"
 datasets=(
     room0_agent_0
 #    room0_agent_1
