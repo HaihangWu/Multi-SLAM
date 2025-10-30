@@ -6,7 +6,7 @@ from .mast3r_utils import (
     mast3r_inference_mono,
 )
 from . import evaluate as eval
-from .config import set_global_config
+from .config import config, set_global_config
 from .global_opt import FactorGraph
 import torch.multiprocessing as mp
 from .visualization import WindowMsg, run_visualization
@@ -23,21 +23,20 @@ import datetime
 
 class Agent:
     def __init__(self, agent_id, args, dataset, states, keyframes, frontend_procs,
-                 backend_procs, manager, config, device):
+                 backend_procs, manager, device):
         self.agent_id = agent_id
         self.args=args
         self.device = device
         self.save_frames = False
         self.datetime_now = str(datetime.datetime.now()).replace(" ", "_")
-        self.config=config
         self.dataset = dataset
-        self.dataset.subsample(self.config["dataset"]["subsample"])
+        self.dataset.subsample(config["dataset"]["subsample"])
         h, w = self.dataset.get_img_shape()[0]
 
         if args.calib:
             with open(args.calib, "r") as f:
                 intrinsics = yaml.load(f, Loader=yaml.SafeLoader)
-            self.config["use_calib"] = True
+            config["use_calib"] = True
             self.dataset.use_calibration = True
             self.dataset.camera_intrinsics = Intrinsics.from_calib(
                 self.dataset.img_size,
@@ -53,7 +52,7 @@ class Agent:
 
         self.model = load_mast3r(device=device)
         has_calib = self.dataset.has_calib()
-        use_calib = self.config["use_calib"]
+        use_calib = config["use_calib"]
 
         if use_calib and not has_calib:
             print("[Warning] No calibration provided for this dataset!")
@@ -78,7 +77,7 @@ class Agent:
         self.last_msg = WindowMsg()
         frontend_procs.append(mp.Process(target=self.run_frontend))
         backend_procs.append(mp.Process(target=self.run_backend,
-                                             args=(self, K)))
+                                             args=(K)))
 
         # self.initialize_agent()
         # self.model = model.to(device)
@@ -147,7 +146,7 @@ class Agent:
                 self.states[self.agent_id].set_frame(frame)
                 self.states[self.agent_id].queue_reloc()
                 # In single threaded mode, make sure relocalization happen for every frame
-                while self.config["single_thread"]:
+                while config["single_thread"]:
                     with self.states[self.agent_id].lock:
                         if self.states[self.agent_id].reloc_sem.value == 0:
                             break
@@ -160,7 +159,7 @@ class Agent:
                 self.keyframes[self.agent_id].append(frame)
                 self.states[self.agent_id].queue_global_optimization(len(self.keyframes[self.agent_id]) - 1)
                 # In single threaded mode, wait for the backend to finish
-                while self.config["single_thread"]:
+                while config["single_thread"]:
                     with self.states[self.agent_id].lock:
                         if len(self.states[self.agent_id].global_optimizer_tasks) == 0:
                             break
@@ -229,8 +228,8 @@ class Agent:
             retrieval_inds = retrieval_database.update(
                 frame,
                 add_after_query=True,
-                k=self.config["retrieval"]["k"],
-                min_thresh=self.config["retrieval"]["min_thresh"],
+                k=config["retrieval"]["k"],
+                min_thresh=config["retrieval"]["min_thresh"],
             )
             kf_idx += retrieval_inds
 
@@ -245,14 +244,14 @@ class Agent:
             frame_idx = [idx] * len(kf_idx)
             if kf_idx:
                 factor_graph.add_factors(
-                    kf_idx, frame_idx, self.config["local_opt"]["min_match_frac"]
+                    kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
                 )
 
             with self.states[self.agent_id].lock:
                 self.states[self.agent_id].edges_ii[:] = factor_graph.ii.cpu().tolist()
                 self.states[self.agent_id].edges_jj[:] = factor_graph.jj.cpu().tolist()
 
-            if self.config["use_calib"]:
+            if config["use_calib"]:
                 factor_graph.solve_GN_calib()
             else:
                 factor_graph.solve_GN_rays()
@@ -269,8 +268,8 @@ class Agent:
             retrieval_inds = retrieval_database.update(
                 frame,
                 add_after_query=False,
-                k=self.config["retrieval"]["k"],
-                min_thresh=self.config["retrieval"]["min_thresh"],
+                k=config["retrieval"]["k"],
+                min_thresh=config["retrieval"]["min_thresh"],
             )
             kf_idx += retrieval_inds
             successful_loop_closure = False
@@ -283,14 +282,14 @@ class Agent:
                 if factor_graph.add_factors(
                         frame_idx,
                         kf_idx,
-                        self.config["reloc"]["min_match_frac"],
-                        is_reloc=self.config["reloc"]["strict"],
+                        config["reloc"]["min_match_frac"],
+                        is_reloc=config["reloc"]["strict"],
                 ):
                     retrieval_database.update(
                         frame,
                         add_after_query=True,
-                        k=self.config["retrieval"]["k"],
-                        min_thresh=self.config["retrieval"]["min_thresh"],
+                        k=config["retrieval"]["k"],
+                        min_thresh=config["retrieval"]["min_thresh"],
                     )
                     print("Success! Relocalized")
                     successful_loop_closure = True
@@ -300,7 +299,7 @@ class Agent:
                     print("Failed to relocalize")
 
             if successful_loop_closure:
-                if self.config["use_calib"]:
+                if config["use_calib"]:
                     factor_graph.solve_GN_calib()
                 else:
                     factor_graph.solve_GN_rays()
@@ -315,15 +314,15 @@ class Agent:
     # class Agent(object):
     #     def __init__(self, agent_id: int, run_info: dict, config: dict) -> None:
     #         self.device = "cuda"
-    #         self.config = deepcopy(config)
+    #         config = deepcopy(config)
     #         self.run_info = run_info
     #
     #         self.output_path = Path(config["data"]["output_path"]) / f"agent_{self.agent_id}"
     #         self.scene_name = config["data"]["scene_name"]
     #         self.dataset_name = config["dataset_name"]
     #         agent_input_path = sorted(Path(config["data"]["input_path"]).glob("*"))[self.agent_id]
-    #         self.config["data"]["input_path"] = str(agent_input_path)
-    #         self.dataset = get_dataset(config["dataset_name"])({**self.config["data"], **self.config["cam"]})
+    #         config["data"]["input_path"] = str(agent_input_path)
+    #         self.dataset = get_dataset(config["dataset_name"])({**config["data"], **config["cam"]})
 
 
 

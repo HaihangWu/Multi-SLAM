@@ -19,8 +19,8 @@ class MultiAgentSystem:
     def initialize_agents(self,args, manager):
         # Initialize pipes and agents
         load_config(args.config)
-        print(config)
         num_agents=len(args.datasets)
+        print(config,num_agents)
         for agent_id in range(num_agents):
             dataset =args.datasets[agent_id]
             parts = dataset.split('_', 1)  # split at first '_'
@@ -34,7 +34,7 @@ class MultiAgentSystem:
 
             # Create agent instance
             agent = Agent(agent_id, args, dataset, self.states, self.keyframes,self.frontend_procs,
-            self.backend_procs, manager,config, device=f"cuda:{agent_id}")
+            self.backend_procs, manager,device=f"cuda:{agent_id}")
             self.agents.append(agent)
 
     def start_agents(self):
