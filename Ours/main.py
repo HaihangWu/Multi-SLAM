@@ -1,6 +1,7 @@
 import argparse
 import torch
 from mast3r_slam.agent import Agent
+from mast3r_slam.config import load_config, config, set_global_config
 
 
 from mast3r_slam.dataloader import Intrinsics, load_dataset
@@ -17,6 +18,8 @@ class MultiAgentSystem:
 
     def initialize_agents(self,args, manager):
         # Initialize pipes and agents
+        load_config(args.config)
+        print(config)
         num_agents=len(args.datasets)
         for agent_id in range(num_agents):
             dataset =args.datasets[agent_id]
@@ -27,10 +30,11 @@ class MultiAgentSystem:
             # Reconstruct the new folder structure: room0/agent_0/
             full_dataset_path = f"{args.base_dataset_path}{scene}/{agent}/results/"
             dataset = load_dataset(full_dataset_path)
+            print(full_dataset_path)
 
             # Create agent instance
             agent = Agent(agent_id, args, dataset, self.states, self.keyframes,self.frontend_procs,
-            self.backend_procs, manager,device=f"cuda:{agent_id}")
+            self.backend_procs, manager,config, device=f"cuda:{agent_id}")
             self.agents.append(agent)
 
     def start_agents(self):

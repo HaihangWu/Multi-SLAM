@@ -6,7 +6,7 @@ from .mast3r_utils import (
     mast3r_inference_mono,
 )
 from . import evaluate as eval
-from .config import load_config, config, set_global_config
+from .config import set_global_config
 from .global_opt import FactorGraph
 import torch.multiprocessing as mp
 from .visualization import WindowMsg, run_visualization
@@ -23,14 +23,13 @@ import datetime
 
 class Agent:
     def __init__(self, agent_id, args, dataset, states, keyframes, frontend_procs,
-                 backend_procs, manager, device):
+                 backend_procs, manager, config, device):
         self.agent_id = agent_id
         self.args=args
         self.device = device
         self.save_frames = False
         self.datetime_now = str(datetime.datetime.now()).replace(" ", "_")
-        self.config = args.config
-        load_config(self.config)
+        self.config=config
         self.dataset = dataset
         self.dataset.subsample(self.config["dataset"]["subsample"])
         h, w = self.dataset.get_img_shape()[0]
