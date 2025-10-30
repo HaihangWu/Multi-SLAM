@@ -53,7 +53,7 @@ class Agent:
         self.states = states
         self.keyframes = keyframes
 
-        self.model = load_mast3r(device=device)
+        # self.model = load_mast3r(device=device)
         has_calib = self.dataset.has_calib()
         use_calib = config["use_calib"]
 
@@ -76,7 +76,7 @@ class Agent:
             if recon_file.exists():
                 recon_file.unlink()
 
-        self.tracker = FrameTracker(self.model, self.keyframes[agent_id], device)
+        # self.tracker = FrameTracker(self.model, self.keyframes[agent_id], device)
         self.last_msg = WindowMsg()
         frontend_procs.append(mp.Process(target=self.run_frontend,args=(config, )))
         backend_procs.append(mp.Process(target=self.run_backend,args=(config, K)))
@@ -88,6 +88,13 @@ class Agent:
     #     # Each agent’s main process
 
     def run_frontend(self,cfg):
+        dev_idx = int(self.device.split(':')[-1])
+        torch.cuda.set_device(dev_idx)
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        self.model = load_mast3r(device=None)  # load on CPU if loader supports it
+        self.model = self.model.to(self.device)
+        self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], self.device)
+
         set_global_config(cfg)
         print(f"Agent {self.agent_id} is tracking...")
         device = self.keyframes[self.agent_id].device
@@ -195,6 +202,12 @@ class Agent:
                 cv2.imwrite(f"{savedir}/{i}.png", frame)
 
     def run_backend(self, cfg, K):
+        dev_idx = int(self.device.split(':')[-1])
+        torch.cuda.set_device(dev_idx)
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        self.model = load_mast3r(device=None)  # load on CPU if loader supports it
+        self.model = self.model.to(self.device)
+
         print(f"Agent {self.agent_id} is optimizing...")
         set_global_config(cfg)
 
