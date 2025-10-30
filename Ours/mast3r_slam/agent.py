@@ -5,7 +5,7 @@ from .mast3r_utils import (
     load_retriever,
     mast3r_inference_mono,
 )
-import evaluate as eval
+from . import evaluate as eval
 from .config import load_config, config, set_global_config
 from .global_opt import FactorGraph
 import torch.multiprocessing as mp
