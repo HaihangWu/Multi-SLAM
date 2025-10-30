@@ -42,4 +42,5 @@ eval "$(conda shell.bash hook)"
 conda deactivate
 conda activate slam
 
+
 bash ./scripts/eval_MA.sh --no-calib

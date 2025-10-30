@@ -48,8 +48,8 @@ class Agent:
                 intrinsics["calibration"],
             )
 
-        states[agent_id] = SharedStates(manager, h, w)
-        keyframes[agent_id] = SharedKeyframes(manager, h, w)
+        states[agent_id] = SharedStates(manager, h, w, device=device)
+        keyframes[agent_id] = SharedKeyframes(manager, h, w, device=device)
         self.states = states
         self.keyframes = keyframes
 
