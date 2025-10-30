@@ -65,6 +65,8 @@ def match_iterative_proj(X11, X21, D11, D21, idx_1_to_2_init=None):
         cfg["lambda_init"],
         cfg["convergence_thresh"],
     )
+    print("DEBUG devices:", X11.device, X21.device, D11.device, D21.device)
+    print("p1 is cuda:", p1.is_cuda if hasattr(p1, 'is_cuda') else None)
     p1 = p1.long()
 
     # Check for occlusion based on distances
