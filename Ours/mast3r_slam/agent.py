@@ -76,8 +76,7 @@ class Agent:
         self.tracker = FrameTracker(self.model, self.keyframes[agent_id], device)
         self.last_msg = WindowMsg()
         frontend_procs.append(mp.Process(target=self.run_frontend))
-        backend_procs.append(mp.Process(target=self.run_backend,
-                                             args=(K)))
+        backend_procs.append(mp.Process(target=self.run_backend,args=(K,)))
 
         # self.initialize_agent()
         # self.model = model.to(device)
