@@ -53,7 +53,7 @@ class Agent:
         self.states = states
         self.keyframes = keyframes
 
-        # self.model = load_mast3r(device=device)
+        self.model = load_mast3r(device=device)
         has_calib = self.dataset.has_calib()
         use_calib = config["use_calib"]
 
@@ -95,8 +95,9 @@ class Agent:
         dev_idx = int(self.device.split(':')[-1])
         torch.cuda.set_device(dev_idx)
         os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
-        self.model = load_mast3r(device=None)  # load on CPU if loader supports it
-        self.model = self.model.to(device)
+        # self.model = load_mast3r(device=None)
+        # self.model = self.model.to(device)
+
         self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], device)
 
         i = 0
@@ -210,8 +211,8 @@ class Agent:
         dev_idx = int(self.device.split(':')[-1])
         torch.cuda.set_device(dev_idx)
         os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
-        self.model = load_mast3r(device=None)  # load on CPU if loader supports it
-        self.model = self.model.to(device)
+        # self.model = load_mast3r(device=None)
+        # self.model = self.model.to(device)
 
         factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, device)
         retrieval_database = load_retriever(self.model,device=device)
