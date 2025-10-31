@@ -2,7 +2,9 @@ import argparse
 import torch
 from mast3r_slam.agent import Agent
 from mast3r_slam.config import load_config, config, set_global_config
-
+from mast3r_slam.mast3r_utils import (
+    load_mast3r,
+)
 
 from mast3r_slam.dataloader import Intrinsics, load_dataset
 import torch.multiprocessing as mp
@@ -15,6 +17,8 @@ class MultiAgentSystem:
         self.backend_procs = []
         self.states = {}  # Store shared states for each agent
         self.keyframes = {}  # Store shared keyframes for each agent
+        self.model = load_mast3r(device="cpu")  # 在CPU上加载一次
+        self.model.share_memory()  # 允许子进程共享内存
 
     def initialize_agents(self,args, manager):
         # Initialize pipes and agents
@@ -32,7 +36,7 @@ class MultiAgentSystem:
             print(full_dataset_path)
 
             # Create agent instance
-            agent = Agent(agent_id, args, dataset, self.states, self.keyframes,self.frontend_procs,
+            agent = Agent(args, agent_id, dataset, self.model, self.states, self.keyframes,self.frontend_procs,
             self.backend_procs, manager,device=f"cuda:{agent_id}")
             self.agents.append(agent)
 

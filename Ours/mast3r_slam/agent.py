@@ -23,7 +23,7 @@ import datetime
 import os
 
 class Agent:
-    def __init__(self, agent_id, args, dataset, states, keyframes, frontend_procs,
+    def __init__(self, args, agent_id, dataset, model, states, keyframes, frontend_procs,
                  backend_procs, manager, device):
         self.agent_id = agent_id
         self.args=args
@@ -53,7 +53,7 @@ class Agent:
         self.states = states
         self.keyframes = keyframes
 
-        self.model = load_mast3r(device=device)
+        # self.model = load_mast3r(device=device)
         has_calib = self.dataset.has_calib()
         use_calib = config["use_calib"]
 
@@ -78,8 +78,8 @@ class Agent:
 
         # self.tracker = FrameTracker(self.model, self.keyframes[agent_id], device)
         self.last_msg = WindowMsg()
-        frontend_procs.append(mp.Process(target=self.run_frontend,args=(config, )))
-        backend_procs.append(mp.Process(target=self.run_backend,args=(config, K)))
+        frontend_procs.append(mp.Process(target=self.run_frontend,args=(config, model)))
+        backend_procs.append(mp.Process(target=self.run_backend,args=(config, model, K)))
 
         # self.initialize_agent()
         # self.model = model.to(device)
@@ -87,18 +87,21 @@ class Agent:
     # def initialize_agent(self,args):
     #     # Each agent’s main process
 
-    def run_frontend(self,cfg):
+    def run_frontend(self,cfg, model):
         set_global_config(cfg)
         print(f"Agent {self.agent_id} is tracking...")
-        device = self.keyframes[self.agent_id].device
+        # device = self.keyframes[self.agent_id].device
 
-        dev_idx = int(self.device.split(':')[-1])
-        torch.cuda.set_device(dev_idx)
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        # dev_idx = int(self.device.split(':')[-1])
+        # torch.cuda.set_device(dev_idx)
+        # os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        self._set_cuda_device()
+        #self._init_model()
+        self.model = model.to(self.device)
         # self.model = load_mast3r(device=None)
         # self.model = self.model.to(device)
 
-        self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], device)
+        self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], self.device)
 
         i = 0
         fps_timer = time.time()
@@ -130,11 +133,11 @@ class Agent:
 
             # get frames last camera pose
             T_WC = (
-                lietorch.Sim3.Identity(1, device=device)
+                lietorch.Sim3.Identity(1, device=self.device)
                 if i == 0
                 else self.states[self.agent_id].get_frame().T_WC
             )
-            frame = create_frame(i, img, T_WC, img_size=self.dataset.img_size, device=device)
+            frame = create_frame(i, img, T_WC, img_size=self.dataset.img_size, device=self.device)
 
             if mode == Mode.INIT:
                 # Initialize via mono inference, and encoded features neeed for database
@@ -203,19 +206,23 @@ class Agent:
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(f"{savedir}/{i}.png", frame)
 
-    def run_backend(self, cfg, K):
+    def run_backend(self, cfg, model, K):
         print(f"Agent {self.agent_id} is optimizing...")
         set_global_config(cfg)
-        device = self.keyframes[self.agent_id].device
+        #device = self.keyframes[self.agent_id].device
 
-        dev_idx = int(self.device.split(':')[-1])
-        torch.cuda.set_device(dev_idx)
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        # dev_idx = int(self.device.split(':')[-1])
+        # torch.cuda.set_device(dev_idx)
+        # os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        self._set_cuda_device()
+        self.model = model.to(self.device)
+        # self._init_model()
         # self.model = load_mast3r(device=None)
         # self.model = self.model.to(device)
 
-        factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, device)
-        retrieval_database = load_retriever(self.model,device=device)
+
+        factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, self.device)
+        retrieval_database = load_retriever(self.model,device=self.device)
 
         mode = self.states[self.agent_id].get_mode()
         while mode is not Mode.TERMINATED:
@@ -325,8 +332,14 @@ class Agent:
                     factor_graph.solve_GN_rays()
             return successful_loop_closure
 
+    def _set_cuda_device(self):
+        dev_idx = int(self.device.split(':')[-1])
+        #os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
+        torch.cuda.set_device(dev_idx)
 
-
+    def _init_model(self):
+        self.model = load_mast3r(device=self.device)
+        self.model = self.model.to(self.device)
 
 
 
