@@ -17,8 +17,8 @@ class MultiAgentSystem:
         self.backend_procs = []
         self.states = {}  # Store shared states for each agent
         self.keyframes = {}  # Store shared keyframes for each agent
-        self.model = load_mast3r(device="cpu")  # 在CPU上加载一次
-        self.model.share_memory()  # 允许子进程共享内存
+        self.model = load_mast3r(device="cpu")
+        self.model.share_memory()
 
     def initialize_agents(self,args, manager):
         # Initialize pipes and agents

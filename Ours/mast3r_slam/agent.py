@@ -101,7 +101,7 @@ class Agent:
         # self.model = load_mast3r(device=None)
         # self.model = self.model.to(device)
 
-        self.tracker = FrameTracker(self.model, self.keyframes[self.agent_id], self.device)
+        tracker = FrameTracker(self.model, self.keyframes[self.agent_id], self.device)
 
         i = 0
         fps_timer = time.time()
@@ -151,7 +151,7 @@ class Agent:
                 continue
 
             if mode == Mode.TRACKING:
-                add_new_kf, match_info, try_reloc = self.tracker.track(frame)
+                add_new_kf, match_info, try_reloc = tracker.track(frame)
                 if try_reloc:
                     self.states[self.agent_id].set_mode(Mode.RELOC)
                 self.states[self.agent_id].set_frame(frame)
