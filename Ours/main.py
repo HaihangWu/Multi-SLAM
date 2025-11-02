@@ -173,4 +173,4 @@ if __name__ == "__main__":
     multi_agent_system.start_agents()
 
     # Global Graph Optimization
-    multi_agent_system.global_graph_opt()
+    multi_agent_system.global_graph_opt(manager)
