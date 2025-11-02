@@ -35,6 +35,7 @@ class Agent:
         print("agent",config)
         self.dataset.subsample(config["dataset"]["subsample"])
         h, w = self.dataset.get_img_shape()[0]
+        self.h,self.w=h, w
 
         if args.calib:
             with open(args.calib, "r") as f:
@@ -209,16 +210,8 @@ class Agent:
     def run_backend(self, cfg, model, K):
         print(f"Agent {self.agent_id} is optimizing...")
         set_global_config(cfg)
-        #device = self.keyframes[self.agent_id].device
-
-        # dev_idx = int(self.device.split(':')[-1])
-        # torch.cuda.set_device(dev_idx)
-        # os.environ["CUDA_VISIBLE_DEVICES"] = str(dev_idx)
         self._set_cuda_device()
         self.model = model.to(self.device)
-        # self._init_model()
-        # self.model = load_mast3r(device=None)
-        # self.model = self.model.to(device)
 
 
         factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, self.device)

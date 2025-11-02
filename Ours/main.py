@@ -16,6 +16,7 @@ import pathlib
 import tqdm
 import cv2
 import numpy as np
+from mast3r_slam.frame import SharedKeyframes
 
 
 class MultiAgentSystem:
@@ -60,23 +61,27 @@ class MultiAgentSystem:
         for p in processes:
             p.join()
 
-    def global_graph_opt(self):
+    def global_graph_opt(self,manager):
         print("\n=== Starting Global Graph Optimization ===")
 
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
         retrieval_database = load_retriever(self.model, device=device)
-        global_factor_graph = FactorGraph(self.model, None, device=device)
 
         # Step 1: Collect all keyframes
+        global_kfs = SharedKeyframes(manager, self.agents[0].h,self.agents[0].w, device=device)
+
         all_keyframes = []
         agent_offsets = {}
         offset = 0
         for agent_id, kfs in self.keyframes.items():
             n_kf = len(kfs)
-            all_keyframes.extend(kfs)
+            all_keyframes.extend([kfs[i] for i in range(len(kfs))])
             agent_offsets[agent_id] = (offset, offset + n_kf)
             offset += n_kf
-        global_factor_graph.frames = all_keyframes
+
+        global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
+        for kf in all_keyframes:
+            retrieval_database.update(kf, add_after_query=True, k=config["retrieval"]["k"])
         print(f"Collected {len(all_keyframes)} keyframes from {len(self.keyframes)} agents")
 
         # Step 2: Cross-agent loop detection
@@ -106,8 +111,8 @@ class MultiAgentSystem:
 
         # Step 4: Update poses in each agent's keyframes
         for agent_id, (start, end) in agent_offsets.items():
-            for i, kf in enumerate(self.keyframes[agent_id]):
-                kf.pose = global_factor_graph.frames[start + i].pose.clone()
+            for i in range(start, end):
+                self.keyframes[agent_id][i - start].T_WC = global_kfs[i].T_WC.clone()
 
             # Step 5: Save results
             if self.agents[agent_id].dataset.save_results:
@@ -133,82 +138,6 @@ class MultiAgentSystem:
 
         print("=== Global Graph Optimization & Saving Finished ===\n")
 
-    # def global_graph_opt(self):
-    #     set_global_config(config)
-    #
-    #     torch.cuda.set_device(0)
-    #     self.model = self.model.to("cuda:0")
-    #     num_agents=len(args.datasets)
-    #     for agent_id in range(num_agents):
-    #
-    #     K = None
-    #     if use_calib:
-    #         K = torch.from_numpy(self.dataset.camera_intrinsics.K_frame).to(
-    #             device, dtype=torch.float32
-    #         )
-    #         self.keyframes[agent_id].set_intrinsics(K)
-    #
-    #     factor_graph = FactorGraph(self.model, self.keyframes[self.agent_id], K, self.device)
-    #     retrieval_database = load_retriever(self.model,device=self.device)
-    #
-    #     # Graph Construction
-    #     kf_idx = []
-    #     # k to previous consecutive keyframes
-    #     n_consec = 1
-    #     for j in range(min(n_consec, idx)):
-    #         kf_idx.append(idx - 1 - j)
-    #     frame = self.keyframes[self.agent_id][idx]
-    #     retrieval_inds = retrieval_database.update(
-    #         frame,
-    #         add_after_query=True,
-    #         k=config["retrieval"]["k"],
-    #         min_thresh=config["retrieval"]["min_thresh"],
-    #     )
-    #     kf_idx += retrieval_inds
-    #
-    #     lc_inds = set(retrieval_inds)
-    #     lc_inds.discard(idx - 1)
-    #     if len(lc_inds) > 0:
-    #         print("Database retrieval", idx, ": ", lc_inds)
-    #
-    #     kf_idx = set(kf_idx)  # Remove duplicates by using set
-    #     kf_idx.discard(idx)  # Remove current kf idx if included
-    #     kf_idx = list(kf_idx)  # convert to list
-    #     frame_idx = [idx] * len(kf_idx)
-    #     if kf_idx:
-    #         factor_graph.add_factors(
-    #             kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
-    #         )
-    #
-    #     with self.states[self.agent_id].lock:
-    #         self.states[self.agent_id].edges_ii[:] = factor_graph.ii.cpu().tolist()
-    #         self.states[self.agent_id].edges_jj[:] = factor_graph.jj.cpu().tolist()
-    #
-    #     if config["use_calib"]:
-    #         factor_graph.solve_GN_calib()
-    #     else:
-    #         factor_graph.solve_GN_rays()
-    #
-    #
-    #     if self.dataset.save_results:
-    #         save_dir, seq_name = eval.prepare_savedir(self.save_directory, self.dataset)
-    #         eval.save_traj(save_dir, f"{seq_name}.txt", self.dataset.timestamps, self.keyframes[self.agent_id])
-    #         eval.save_reconstruction(
-    #             save_dir,
-    #             f"{seq_name}.ply",
-    #             self.keyframes[self.agent_id],
-    #             self.last_msg.C_conf_threshold,
-    #         )
-    #         eval.save_keyframes(
-    #             save_dir / "keyframes" / seq_name, self.dataset.timestamps, self.keyframes[self.agent_id]
-    #         )
-    #     if self.save_frames:
-    #         savedir = pathlib.Path(f"logs/frames/{self.datetime_now}")
-    #         savedir.mkdir(exist_ok=True, parents=True)
-    #         for i, frame in tqdm.tqdm(enumerate(frames), total=len(frames)):
-    #             frame = (frame * 255).clip(0, 255)
-    #             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-    #             cv2.imwrite(f"{savedir}/{i}.png", frame)
 
 
 if __name__ == "__main__":
