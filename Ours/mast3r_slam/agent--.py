@@ -106,7 +106,7 @@ class Agent:
         i = 0
         fps_timer = time.time()
 
-        self.frames = []
+        frames = []
         while True:
             mode = self.states[self.agent_id].get_mode()
             # msg = try_get_msg(viz2main)
@@ -129,7 +129,7 @@ class Agent:
 
             timestamp, img = self.dataset[i]
             if self.save_frames:
-                self.frames.append(img)
+                frames.append(img)
 
             # get frames last camera pose
             T_WC = (
@@ -186,25 +186,25 @@ class Agent:
                 print(f"FPS: {FPS}")
             i += 1
 
-        # if self.dataset.save_results:
-        #     save_dir, seq_name = eval.prepare_savedir(self.save_directory, self.dataset)
-        #     eval.save_traj(save_dir, f"{seq_name}.txt", self.dataset.timestamps, self.keyframes[self.agent_id])
-        #     eval.save_reconstruction(
-        #         save_dir,
-        #         f"{seq_name}.ply",
-        #         self.keyframes[self.agent_id],
-        #         self.last_msg.C_conf_threshold,
-        #     )
-        #     eval.save_keyframes(
-        #         save_dir / "keyframes" / seq_name, self.dataset.timestamps, self.keyframes[self.agent_id]
-        #     )
-        # if self.save_frames:
-        #     savedir = pathlib.Path(f"logs/frames/{self.datetime_now}")
-        #     savedir.mkdir(exist_ok=True, parents=True)
-        #     for i, frame in tqdm.tqdm(enumerate(self.frames), total=len(self.frames)):
-        #         frame = (frame * 255).clip(0, 255)
-        #         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        #         cv2.imwrite(f"{savedir}/{i}.png", frame)
+        if self.dataset.save_results:
+            save_dir, seq_name = eval.prepare_savedir(self.save_directory, self.dataset)
+            eval.save_traj(save_dir, f"{seq_name}.txt", self.dataset.timestamps, self.keyframes[self.agent_id])
+            eval.save_reconstruction(
+                save_dir,
+                f"{seq_name}.ply",
+                self.keyframes[self.agent_id],
+                self.last_msg.C_conf_threshold,
+            )
+            eval.save_keyframes(
+                save_dir / "keyframes" / seq_name, self.dataset.timestamps, self.keyframes[self.agent_id]
+            )
+        if self.save_frames:
+            savedir = pathlib.Path(f"logs/frames/{self.datetime_now}")
+            savedir.mkdir(exist_ok=True, parents=True)
+            for i, frame in tqdm.tqdm(enumerate(frames), total=len(frames)):
+                frame = (frame * 255).clip(0, 255)
+                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+                cv2.imwrite(f"{savedir}/{i}.png", frame)
 
     def run_backend(self, cfg, model, K):
         print(f"Agent {self.agent_id} is optimizing...")
@@ -245,47 +245,55 @@ class Agent:
                 time.sleep(0.01)
                 continue
 
-            # Graph Construction
-            kf_idx = []
-            # k to previous consecutive keyframes
-            n_consec = 1
-            for j in range(min(n_consec, idx)):
-                kf_idx.append(idx - 1 - j)
-            frame = self.keyframes[self.agent_id][idx]
-            retrieval_inds = retrieval_database.update(
-                frame,
-                add_after_query=True,
-                k=config["retrieval"]["k"],
-                min_thresh=config["retrieval"]["min_thresh"],
-            )
-            kf_idx += retrieval_inds
-
-            lc_inds = set(retrieval_inds)
-            lc_inds.discard(idx - 1)
-            if len(lc_inds) > 0:
-                print("Database retrieval", idx, ": ", lc_inds)
-
-            kf_idx = set(kf_idx)  # Remove duplicates by using set
-            kf_idx.discard(idx)  # Remove current kf idx if included
-            kf_idx = list(kf_idx)  # convert to list
-            frame_idx = [idx] * len(kf_idx)
-            if kf_idx:
-                factor_graph.add_factors(
-                    kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
-                )
-
-            with self.states[self.agent_id].lock:
-                self.states[self.agent_id].edges_ii[:] = factor_graph.ii.cpu().tolist()
-                self.states[self.agent_id].edges_jj[:] = factor_graph.jj.cpu().tolist()
-
-            if config["use_calib"]:
-                factor_graph.solve_GN_calib()
-            else:
-                factor_graph.solve_GN_rays()
+            self.Local_Graph_Optimization(self, idx, factor_graph, retrieval_database)
 
             with self.states[self.agent_id].lock:
                 if len(self.states[self.agent_id].global_optimizer_tasks) > 0:
                     idx = self.states[self.agent_id].global_optimizer_tasks.pop(0)
+
+    def Global_Graph_Optimization(self):
+        return;
+
+    def Local_Graph_Optimization(self,idx, factor_graph, retrieval_database):
+        # Graph Construction
+        kf_idx = []
+        # k to previous consecutive keyframes
+        n_consec = 1
+        for j in range(min(n_consec, idx)):
+            kf_idx.append(idx - 1 - j)
+        frame = self.keyframes[self.agent_id][idx]
+        retrieval_inds = retrieval_database.update(
+            frame,
+            add_after_query=True,
+            k=config["retrieval"]["k"],
+            min_thresh=config["retrieval"]["min_thresh"],
+        )
+        kf_idx += retrieval_inds
+
+        lc_inds = set(retrieval_inds)
+        lc_inds.discard(idx - 1)
+        if len(lc_inds) > 0:
+            print("Database retrieval", idx, ": ", lc_inds)
+
+        kf_idx = set(kf_idx)  # Remove duplicates by using set
+        kf_idx.discard(idx)  # Remove current kf idx if included
+        kf_idx = list(kf_idx)  # convert to list
+        frame_idx = [idx] * len(kf_idx)
+        if kf_idx:
+            factor_graph.add_factors(
+                kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
+            )
+
+        with self.states[self.agent_id].lock:
+            self.states[self.agent_id].edges_ii[:] = factor_graph.ii.cpu().tolist()
+            self.states[self.agent_id].edges_jj[:] = factor_graph.jj.cpu().tolist()
+
+        if config["use_calib"]:
+            factor_graph.solve_GN_calib()
+        else:
+            factor_graph.solve_GN_rays()
+
+
 
     def relocalization(self, frame, factor_graph, retrieval_database):
         # we are adding and then removing from the keyframe, so we need to be careful.
