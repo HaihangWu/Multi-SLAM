@@ -90,7 +90,7 @@ class MultiAgentSystem:
                 kf.C = kf.C.to(device, non_blocking=True)
                 kf.feat = kf.feat.to(device, non_blocking=True)
                 kf.pos = kf.pos.to(device, non_blocking=True)
-                if hasattr(kf, "K"):
+                if hasattr(kf, "K") and kf.K is not None:
                     kf.K = kf.K.to(device, non_blocking=True)
 
                 all_keyframes.append(kf)
@@ -137,10 +137,6 @@ class MultiAgentSystem:
                 else:
                     T_WC_tmp = global_kfs[i].T_WC
                 self.keyframes[agent_id].update_T_WCs(T_WC_tmp, i - start)
-                # T_WC_tmp = global_kfs[i].T_WC.to(device_tmp)
-                # self.keyframes[agent_id].update_T_WCs(T_WC_tmp,i-start)
-                #.keyframes[agent_id][i - start].T_WC = global_kfs[i].T_WC.clone()
-
 
             # Step 5: Save results
             if self.agents[agent_id].dataset.save_results:
@@ -202,3 +198,7 @@ if __name__ == "__main__":
 
     # Global Graph Optimization
     multi_agent_system.global_graph_opt(manager)
+
+    # T_WC_tmp = global_kfs[i].T_WC.to(device_tmp)
+    # self.keyframes[agent_id].update_T_WCs(T_WC_tmp,i-start)
+    # .keyframes[agent_id][i - start].T_WC = global_kfs[i].T_WC.clone()
