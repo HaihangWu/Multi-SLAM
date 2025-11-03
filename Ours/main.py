@@ -118,10 +118,9 @@ class MultiAgentSystem:
         print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
 
-        # Step 4: Update poses in each agent's keyframes
         for agent_id, (start, end) in agent_offsets.items():
             for i in range(start, end):
-                print("global graph TWC",global_factor_graph.frames.T_WC[i])
+                print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
 
         # Step 2: Cross-agent loop detection
         for id_a, (start_a, end_a) in agent_offsets.items():
@@ -148,6 +147,10 @@ class MultiAgentSystem:
         else:
             global_factor_graph.solve_GN_rays()
         print("Global optimization completed.")
+
+        for agent_id, (start, end) in agent_offsets.items():
+            for i in range(start, end):
+                print("global graph TWC 2",global_factor_graph.frames.T_WC[i])
 
         # Step 4: Update poses in each agent's keyframes
         for agent_id, (start, end) in agent_offsets.items():
