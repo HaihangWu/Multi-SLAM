@@ -139,7 +139,7 @@ class MultiAgentSystem:
                     T_WC_tmp = global_kfs[i].T_WC.to(device_tmp)
                 else:
                     T_WC_tmp = global_kfs[i].T_WC
-                print(self.keyframes[agent_id][i - start],T_WC_tmp)
+                print("keyframes",self.keyframes[agent_id].T_WC[i - start],"tmp",T_WC_tmp)
                 self.keyframes[agent_id].update_T_WCs(T_WC_tmp, i - start)
 
             # Step 5: Save results
