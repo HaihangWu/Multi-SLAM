@@ -99,7 +99,7 @@ class MultiAgentSystem:
                 # Graph Construction
                 kf_idx = []
                 # k to previous consecutive keyframes
-                n_consec = 1
+                n_consec = 2
                 for j in range(min(n_consec, i)):
                     kf_idx.append(i - 1 - j)
                 frame_idx = [i] * len(kf_idx)
@@ -121,7 +121,7 @@ class MultiAgentSystem:
         for agent_id, (start, end) in agent_offsets.items():
             for i in range(start, end):
                 print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
-        print("global graph edge 1",global_factor_graph.idx_ii2jj)
+        #print("global graph edge 1",global_factor_graph.idx_ii2jj)
 
         # Step 2: Cross-agent loop detection
         for id_a, (start_a, end_a) in agent_offsets.items():
@@ -152,7 +152,7 @@ class MultiAgentSystem:
         for agent_id, (start, end) in agent_offsets.items():
             for i in range(start, end):
                 print("global graph TWC 2",global_factor_graph.frames.T_WC[i])
-        print("global graph edge 2",global_factor_graph.idx_ii2jj)
+        #print("global graph edge 2",global_factor_graph.idx_ii2jj)
 
         # Step 4: Update poses in each agent's keyframes
         for agent_id, (start, end) in agent_offsets.items():
