@@ -104,7 +104,7 @@ class MultiAgentSystem:
                     kf_idx.append(i+offset - 1 - j)
                 frame_idx = [i+offset] * len(kf_idx)
                 if kf_idx:
-                    print("add factor",kf_idx,frame_idx,global_factor_graph.frames.T_WC[i+offset])
+                    # print("add factor",kf_idx,frame_idx,global_factor_graph.frames.T_WC[i+offset])
                     global_factor_graph.add_factors(
                         kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
                     )
@@ -119,10 +119,10 @@ class MultiAgentSystem:
         print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
 
-        # for agent_id, (start, end) in agent_offsets.items():
-        #     for i in range(start, end):
-        #         print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
-        #print("global graph edge 1",global_factor_graph.idx_ii2jj)
+        for agent_id, (start, end) in agent_offsets.items():
+            for i in range(start, end):
+                print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
+        # print("global graph edge 1",global_factor_graph.idx_ii2jj)
 
         # Step 2: Cross-agent loop detection
         for id_a, (start_a, end_a) in agent_offsets.items():
