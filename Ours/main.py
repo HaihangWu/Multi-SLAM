@@ -73,6 +73,7 @@ class MultiAgentSystem:
         h, w = self.agents[0].dataset.get_img_shape()[0]
         print("h,w",h,w)
         global_kfs = SharedKeyframes(manager, h, w, device=device)
+        global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
 
         agent_offsets = {}
         offset = 0
@@ -95,6 +96,17 @@ class MultiAgentSystem:
                     kf.K = kf.K.to(device, non_blocking=True)
 
                 global_kfs.append(kf)
+                # Graph Construction
+                kf_idx = []
+                # k to previous consecutive keyframes
+                n_consec = 1
+                for j in range(min(n_consec, i)):
+                    kf_idx.append(i - 1 - j)
+                frame_idx = [i] * len(kf_idx)
+                if kf_idx:
+                    global_factor_graph.add_factors(
+                        kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
+                    )
 
             agent_offsets[agent_id] = (offset, offset + n_kf)
             offset += n_kf
@@ -102,7 +114,7 @@ class MultiAgentSystem:
         total_num_keyframes=len(global_kfs)
         for i in range(total_num_keyframes):
             retrieval_database.update(global_kfs[i], add_after_query=True, k=config["retrieval"]["k"])
-        global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
+
         print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
         # Step 2: Cross-agent loop detection
