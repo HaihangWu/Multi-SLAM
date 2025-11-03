@@ -100,7 +100,7 @@ class MultiAgentSystem:
                 # Graph Construction
                 kf_idx = []
                 # k to previous consecutive keyframes
-                n_consec = 1
+                n_consec = 2
                 for j in range(min(n_consec, i)):
                     kf_idx.append(i - 1 - j)
                 frame_idx = [i] * len(kf_idx)
