@@ -135,10 +135,10 @@ class MultiAgentSystem:
         for agent_id, (start, end) in agent_offsets.items():
             device_tmp=self.keyframes[agent_id].device
             for i in range(start, end):
-                if global_kfs[i].T_WC.device != device_tmp:
-                    T_WC_tmp = global_kfs[i].T_WC.to(device_tmp)
+                if global_kfs.T_WC.device != device_tmp:
+                    T_WC_tmp = global_kfs.T_WC[i].to(device_tmp)
                 else:
-                    T_WC_tmp = global_kfs[i].T_WC
+                    T_WC_tmp = global_kfs.T_WC[i]
                 print("keyframes",self.keyframes[agent_id].T_WC[i - start],"tmp",T_WC_tmp)
                 self.keyframes[agent_id].update_T_WCs(T_WC_tmp, i - start)
 
