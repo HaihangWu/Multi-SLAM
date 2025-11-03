@@ -63,7 +63,7 @@ class MultiAgentSystem:
 
     def global_graph_opt(self,manager):
         print("\n=== Starting Global Graph Optimization ===")
-
+        set_global_config(config)
         device = "cuda:0"
         torch.cuda.set_device(0)
         self.model = self.model.to(device)
@@ -99,11 +99,12 @@ class MultiAgentSystem:
                 # Graph Construction
                 kf_idx = []
                 # k to previous consecutive keyframes
-                n_consec = 2
+                n_consec = 1
                 for j in range(min(n_consec, i)):
                     kf_idx.append(i - 1 - j)
                 frame_idx = [i] * len(kf_idx)
                 if kf_idx:
+                    print("add factor",kf_idx,frame_idx,global_factor_graph.frames.T_WC[i])
                     global_factor_graph.add_factors(
                         kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
                     )
