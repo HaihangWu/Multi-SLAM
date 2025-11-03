@@ -120,7 +120,7 @@ class MultiAgentSystem:
                     )
                     topk = [idx for idx in topk if start_b <= idx < end_b]
                     if topk:
-                        print("topk",topk)
+                        print("topk",i,topk)
                         frame_idx = [i] * len(topk)
                         global_factor_graph.add_factors(frame_idx, topk, config["local_opt"]["min_match_frac"])
 
