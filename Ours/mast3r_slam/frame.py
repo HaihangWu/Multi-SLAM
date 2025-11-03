@@ -222,7 +222,8 @@ class SharedKeyframes:
         self.lock = manager.RLock()
         self.n_size = manager.Value("i", 0)
 
-        self.h, self.w = h, w
+        self.h = h
+        self.w = w
         self.buffer = buffer
         self.dtype = dtype
         self.device = device

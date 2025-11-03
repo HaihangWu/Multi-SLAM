@@ -35,7 +35,7 @@ class Agent:
         print("agent",config)
         self.dataset.subsample(config["dataset"]["subsample"])
         h, w = self.dataset.get_img_shape()[0]
-        self.h,self.w=h, w
+        # self.h,self.w=h, w
 
         if args.calib:
             with open(args.calib, "r") as f:

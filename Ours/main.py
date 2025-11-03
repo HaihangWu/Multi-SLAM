@@ -70,9 +70,10 @@ class MultiAgentSystem:
         retrieval_database = load_retriever(self.model, device=device)
 
         # Step 1: Collect all keyframes
-        global_kfs = SharedKeyframes(manager, self.agents[0].h,self.agents[0].w, device=device)
+        h, w = self.agents[0].dataset.get_img_shape()[0]
+        print("h,w",h,w)
+        global_kfs = SharedKeyframes(manager, h, w, device=device)
 
-        all_keyframes = []
         agent_offsets = {}
         offset = 0
 
@@ -93,15 +94,16 @@ class MultiAgentSystem:
                 if hasattr(kf, "K") and kf.K is not None:
                     kf.K = kf.K.to(device, non_blocking=True)
 
-                all_keyframes.append(kf)
+                global_kfs.append(kf)
 
             agent_offsets[agent_id] = (offset, offset + n_kf)
             offset += n_kf
 
-        for kf in all_keyframes:
-            retrieval_database.update(kf, add_after_query=True, k=config["retrieval"]["k"])
+        total_num_keyframes=len(global_kfs)
+        for i in range(total_num_keyframes):
+            retrieval_database.update(global_kfs[i], add_after_query=True, k=config["retrieval"]["k"])
         global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
-        print(f"Collected {len(all_keyframes)} keyframes from {len(self.keyframes)} agents")
+        print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
         # Step 2: Cross-agent loop detection
         for id_a, (start_a, end_a) in agent_offsets.items():
@@ -109,7 +111,7 @@ class MultiAgentSystem:
                 if id_a >= id_b:
                     continue
                 for i in range(start_a, end_a):
-                    frame_i = all_keyframes[i]
+                    frame_i = global_kfs[i]
                     topk = retrieval_database.update(
                         frame_i,
                         add_after_query=False,
