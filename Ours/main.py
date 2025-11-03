@@ -95,6 +95,7 @@ class MultiAgentSystem:
                 if hasattr(kf, "K") and kf.K is not None:
                     kf.K = kf.K.to(device, non_blocking=True)
 
+
                 global_kfs.append(kf)
                 # Graph Construction
                 kf_idx = []
@@ -103,7 +104,7 @@ class MultiAgentSystem:
                 for j in range(min(n_consec, i)):
                     kf_idx.append(i - 1 - j)
                 frame_idx = [i] * len(kf_idx)
-                if kf_idx:
+                if kf_idx and agent_id==0:
                     print("add factor",kf_idx,frame_idx,global_factor_graph.frames.T_WC[i])
                     global_factor_graph.add_factors(
                         kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
@@ -119,9 +120,9 @@ class MultiAgentSystem:
         print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
 
-        for agent_id, (start, end) in agent_offsets.items():
-            for i in range(start, end):
-                print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
+        # for agent_id, (start, end) in agent_offsets.items():
+        #     for i in range(start, end):
+        #         print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
         #print("global graph edge 1",global_factor_graph.idx_ii2jj)
 
         # Step 2: Cross-agent loop detection
