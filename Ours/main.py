@@ -64,7 +64,9 @@ class MultiAgentSystem:
     def global_graph_opt(self,manager):
         print("\n=== Starting Global Graph Optimization ===")
 
-        device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        device = "cuda:0"
+        torch.cuda.set_device(0)
+        self.model = self.model.to(device)
         retrieval_database = load_retriever(self.model, device=device)
 
         # Step 1: Collect all keyframes
@@ -73,15 +75,32 @@ class MultiAgentSystem:
         all_keyframes = []
         agent_offsets = {}
         offset = 0
+
         for agent_id, kfs in self.keyframes.items():
             n_kf = len(kfs)
-            all_keyframes.extend([kfs[i] for i in range(len(kfs))])
+            for i in range(n_kf):
+                kf = kfs[i]
+
+                # Move all relevant tensors to the target device
+                kf.img = kf.img.to(device, non_blocking=True)
+                kf.img_shape = kf.img_shape.to(device, non_blocking=True)
+                kf.img_true_shape = kf.img_true_shape.to(device, non_blocking=True)
+                kf.T_WC = kf.T_WC.to(device, non_blocking=True)
+                kf.X_canon = kf.X_canon.to(device, non_blocking=True)
+                kf.C = kf.C.to(device, non_blocking=True)
+                kf.feat = kf.feat.to(device, non_blocking=True)
+                kf.pos = kf.pos.to(device, non_blocking=True)
+                if hasattr(kf, "K"):
+                    kf.K = kf.K.to(device, non_blocking=True)
+
+                all_keyframes.append(kf)
+
             agent_offsets[agent_id] = (offset, offset + n_kf)
             offset += n_kf
 
-        global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
         for kf in all_keyframes:
             retrieval_database.update(kf, add_after_query=True, k=config["retrieval"]["k"])
+        global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
         print(f"Collected {len(all_keyframes)} keyframes from {len(self.keyframes)} agents")
 
         # Step 2: Cross-agent loop detection
@@ -111,8 +130,17 @@ class MultiAgentSystem:
 
         # Step 4: Update poses in each agent's keyframes
         for agent_id, (start, end) in agent_offsets.items():
+            device_tmp=self.keyframes[agent_id].device
             for i in range(start, end):
-                self.keyframes[agent_id][i - start].T_WC = global_kfs[i].T_WC.clone()
+                if global_kfs[i].T_WC.device != device_tmp:
+                    T_WC_tmp = global_kfs[i].T_WC.to(device_tmp)
+                else:
+                    T_WC_tmp = global_kfs[i].T_WC
+                self.keyframes[agent_id].update_T_WCs(T_WC_tmp, i - start)
+                # T_WC_tmp = global_kfs[i].T_WC.to(device_tmp)
+                # self.keyframes[agent_id].update_T_WCs(T_WC_tmp,i-start)
+                #.keyframes[agent_id][i - start].T_WC = global_kfs[i].T_WC.clone()
+
 
             # Step 5: Save results
             if self.agents[agent_id].dataset.save_results:
