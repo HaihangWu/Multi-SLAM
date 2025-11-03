@@ -117,6 +117,12 @@ class MultiAgentSystem:
 
         print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
+
+        # Step 4: Update poses in each agent's keyframes
+        for agent_id, (start, end) in agent_offsets.items():
+            for i in range(start, end):
+                print("global graph TWC",global_factor_graph.frames.T_WC[i])
+
         # Step 2: Cross-agent loop detection
         for id_a, (start_a, end_a) in agent_offsets.items():
             for id_b, (start_b, end_b) in agent_offsets.items():
@@ -147,7 +153,7 @@ class MultiAgentSystem:
         for agent_id, (start, end) in agent_offsets.items():
             device_tmp=self.keyframes[agent_id].device
             for i in range(start, end):
-                if global_kfs.T_WC.device != device_tmp:
+                if global_kfs.device != device_tmp:
                     T_WC_tmp = global_kfs.T_WC[i].to(device_tmp)
                 else:
                     T_WC_tmp = global_kfs.T_WC[i]
