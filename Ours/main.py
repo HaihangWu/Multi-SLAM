@@ -119,29 +119,37 @@ class MultiAgentSystem:
         print(f"Collected {total_num_keyframes} keyframes from {len(self.keyframes)} agents")
 
 
-        for agent_id, (start, end) in agent_offsets.items():
-            for i in range(start, end):
-                print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
+        # for agent_id, (start, end) in agent_offsets.items():
+        #     for i in range(start, end):
+        #         print("global graph TWC 1",global_factor_graph.frames.T_WC[i])
         # print("global graph edge 1",global_factor_graph.idx_ii2jj)
 
-        # Step 2: Cross-agent loop detection
+        # Step 2: loop detection
         for id_a, (start_a, end_a) in agent_offsets.items():
-            for id_b, (start_b, end_b) in agent_offsets.items():
-                if id_a >= id_b:
-                    continue
-                for i in range(start_a, end_a):
-                    frame_i = global_kfs[i]
-                    topk = retrieval_database.update(
-                        frame_i,
-                        add_after_query=False,
-                        k=config["retrieval"]["k"],
-                        min_thresh=config["retrieval"]["min_thresh"]
-                    )
-                    topk = [idx for idx in topk if start_b <= idx < end_b]
-                    if topk:
-                        print("topk",i,topk)
-                        frame_idx = [i] * len(topk)
-                        global_factor_graph.add_factors(frame_idx, topk, config["local_opt"]["min_match_frac"])
+            intra_loop_closure=True
+            for id_b, (start_b, end_b) in agent_offsets.items():             # Cross-agent loop detection
+                if intra_loop_closure or id_a < id_b:
+                    for i in range(start_a, end_a):
+                        frame_i = global_kfs[i]
+                        topk = retrieval_database.update(
+                            frame_i,
+                            add_after_query=False,
+                            k=config["retrieval"]["k"],
+                            min_thresh=config["retrieval"]["min_thresh"]
+                        )
+                        topk_inter_agent = [idx for idx in topk if start_b <= idx < end_b]  if id_a < id_b else []
+                        topk_intra_agent = [idx for idx in topk if start_a <= idx < i] if intra_loop_closure else []
+                        if topk_inter_agent:
+                            print("topk inter",i,topk_inter_agent)
+                            frame_idx = [i] * len(topk_inter_agent)
+                            global_factor_graph.add_factors(frame_idx, topk_inter_agent, config["local_opt"]["min_match_frac"])
+                        if topk_intra_agent:
+                            print("topk intra",i,topk_intra_agent)
+                            frame_idx = [i] * len(topk_intra_agent)
+                            global_factor_graph.add_factors(frame_idx, topk_intra_agent, config["local_opt"]["min_match_frac"])
+                intra_loop_closure = False
+
+
 
         # Step 3: Optimize
         if config["use_calib"]:
@@ -150,9 +158,9 @@ class MultiAgentSystem:
             global_factor_graph.solve_GN_rays()
         print("Global optimization completed.")
 
-        for agent_id, (start, end) in agent_offsets.items():
-            for i in range(start, end):
-                print("global graph TWC 2",i, global_factor_graph.frames.T_WC[i])
+        # for agent_id, (start, end) in agent_offsets.items():
+        #     for i in range(start, end):
+        #         print("global graph TWC 2",i, global_factor_graph.frames.T_WC[i])
         #print("global graph edge 2",global_factor_graph.idx_ii2jj)
 
         # Step 4: Update poses in each agent's keyframes
