@@ -96,18 +96,18 @@ class MultiAgentSystem:
                     kf.K = kf.K.to(device, non_blocking=True)
 
                 global_kfs.append(kf)
-                # Graph Construction
-                kf_idx = []
-                # k to previous consecutive keyframes
-                n_consec = 1
-                for j in range(min(n_consec, i)):
-                    kf_idx.append(i+offset - 1 - j)
-                frame_idx = [i+offset] * len(kf_idx)
-                if kf_idx:
-                    # print("add factor",kf_idx,frame_idx,global_factor_graph.frames.T_WC[i+offset])
-                    global_factor_graph.add_factors(
-                        kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
-                    )
+                # # Graph Construction
+                # kf_idx = []
+                # # k to previous consecutive keyframes
+                # n_consec = 1
+                # for j in range(min(n_consec, i)):
+                #     kf_idx.append(i+offset - 1 - j)
+                # frame_idx = [i+offset] * len(kf_idx)
+                # if kf_idx:
+                #     # print("add factor",kf_idx,frame_idx,global_factor_graph.frames.T_WC[i+offset])
+                #     global_factor_graph.add_factors(
+                #         kf_idx, frame_idx, config["local_opt"]["min_match_frac"]
+                #     )
 
             agent_offsets[agent_id] = (offset, offset + n_kf)
             offset += n_kf
@@ -138,10 +138,18 @@ class MultiAgentSystem:
                             min_thresh=config["retrieval"]["min_thresh"]
                         )
                         topk_inter_agent = [idx for idx in topk if start_b <= idx < end_b]  if id_a < id_b else []
-                        topk_intra_agent = [idx for idx in topk if start_a <= idx < i-1] if intra_loop_closure else []
+                        topk_intra_agent=[]
+                        if intra_loop_closure:
+                            n_consec = 1
+                            for j in range(min(n_consec, i-start_a)):
+                                topk_intra_agent.append(i - 1 - j)
+                            topk_intra_agent += [idx for idx in topk if start_a <= idx < i]
+                            topk_intra_agent = set(topk_intra_agent)  # Remove duplicates by using set
+                            topk_intra_agent = list(topk_intra_agent)  # convert to list
+
                         if topk_inter_agent or topk_intra_agent:
                             topk=topk_inter_agent+topk_intra_agent
-                            print("topk inter", i, topk)
+                            print("topk", i, topk)
                             frame_idx = [i] * len(topk)
                             global_factor_graph.add_factors(frame_idx, topk, config["local_opt"]["min_match_frac"])
                         # if topk_intra_agent:
