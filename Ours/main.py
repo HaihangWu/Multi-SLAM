@@ -138,15 +138,16 @@ class MultiAgentSystem:
                             min_thresh=config["retrieval"]["min_thresh"]
                         )
                         topk_inter_agent = [idx for idx in topk if start_b <= idx < end_b]  if id_a < id_b else []
-                        topk_intra_agent = [idx for idx in topk if start_a <= idx < i] if intra_loop_closure else []
-                        if topk_inter_agent:
-                            print("topk inter",i,topk_inter_agent)
-                            frame_idx = [i] * len(topk_inter_agent)
-                            global_factor_graph.add_factors(frame_idx, topk_inter_agent, config["local_opt"]["min_match_frac"])
-                        if topk_intra_agent:
-                            print("topk intra",i,topk_intra_agent)
-                            frame_idx = [i] * len(topk_intra_agent)
-                            global_factor_graph.add_factors(frame_idx, topk_intra_agent, config["local_opt"]["min_match_frac"])
+                        topk_intra_agent = [idx for idx in topk if start_a <= idx < i-1] if intra_loop_closure else []
+                        if topk_inter_agent or topk_intra_agent:
+                            topk=topk_inter_agent+topk_intra_agent
+                            print("topk inter", i, topk)
+                            frame_idx = [i] * len(topk)
+                            global_factor_graph.add_factors(frame_idx, topk, config["local_opt"]["min_match_frac"])
+                        # if topk_intra_agent:
+                        #     print("topk intra",i,topk_intra_agent)
+                        #     frame_idx = [i] * len(topk_intra_agent)
+                        #     global_factor_graph.add_factors(frame_idx, topk_intra_agent, config["local_opt"]["min_match_frac"])
                 intra_loop_closure = False
 
 
