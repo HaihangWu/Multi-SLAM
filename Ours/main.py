@@ -96,7 +96,7 @@ class MultiAgentSystem:
                     kf.K = kf.K.to(device, non_blocking=True)
 
                 global_kfs.append(kf)
-                print("initial keyframes", self.keyframes[agent_id][i].T_WC)
+                print("initial keyframes", self.keyframes[agent_id].T_WC[i])
                 # # Graph Construction
                 # kf_idx = []
                 # # k to previous consecutive keyframes
@@ -179,9 +179,9 @@ class MultiAgentSystem:
                     T_WC_tmp = global_kfs.T_WC[i].to(device_tmp)
                 else:
                     T_WC_tmp = global_kfs.T_WC[i]
-                print("keyframes before update",self.keyframes[agent_id][i - start].T_WC,"tmp",T_WC_tmp)
+                print("keyframes before update",self.keyframes[agent_id].T_WC[i - start],"tmp",T_WC_tmp)
                 self.keyframes[agent_id].update_T_WCs(T_WC_tmp, i - start)
-                print("keyframes after update", self.keyframes[agent_id][i - start].T_WC)
+                print("keyframes after update", self.keyframes[agent_id].T_WC[i - start])
 
             # Step 5: Save results
             if self.agents[agent_id].dataset.save_results:
