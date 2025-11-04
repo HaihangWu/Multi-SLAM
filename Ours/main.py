@@ -158,8 +158,6 @@ class MultiAgentSystem:
                         #     global_factor_graph.add_factors(frame_idx, topk_intra_agent, config["local_opt"]["min_match_frac"])
                 intra_loop_closure = False
 
-
-
         # Step 3: Optimize
         if config["use_calib"]:
             global_factor_graph.solve_GN_calib()
