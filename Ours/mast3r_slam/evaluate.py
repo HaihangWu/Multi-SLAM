@@ -49,7 +49,7 @@ def save_traj(
                 T_WC = intrinsics.refine_pose_with_calibration(keyframe) #?
             x, y, z, qx, qy, qz, qw = T_WC.data.numpy().reshape(-1)
             print("save results final:",x, y, z, qx, qy, qz, qw)
-            #f.write(f"{t} {x} {y} {z} {qx} {qy} {qz} {qw}\n")
+            f.write(f"{t} {x} {y} {z} {qx} {qy} {qz} {qw}\n")
 
 
 
