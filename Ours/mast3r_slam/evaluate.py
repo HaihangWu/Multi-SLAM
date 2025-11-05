@@ -36,16 +36,18 @@ def save_traj(
         # for keyframe_id in frames.keyframe_ids:
         for i in range(len(frames)):
             keyframe = frames[i]
-            #t = timestamps[keyframe.frame_id]
-            frame_id = int(frames.dataset_idx[i].item()) #NEW
-            t = timestamps[frame_id] #NEW
-            T_sim3 = lietorch.Sim3(frames.T_WC[i]) #NEW
+            t = timestamps[keyframe.frame_id]
+            # frame_id = int(frames.dataset_idx[i].item()) #NEW
+            # t = timestamps[frame_id] #NEW
+            # T_sim3 = lietorch.Sim3(frames.T_WC[i]) #NEW
             if intrinsics is None:
-                #T_WC = as_SE3(keyframe.T_WC)
-                T_WC = as_SE3(T_sim3)
+                T_WC = as_SE3(keyframe.T_WC)
+                # T_WC = as_SE3(T_sim3) #NEW
+                print("save results 1:")
             else:
                 T_WC = intrinsics.refine_pose_with_calibration(keyframe) #?
             x, y, z, qx, qy, qz, qw = T_WC.data.numpy().reshape(-1)
+            print("save results final:",x, y, z, qx, qy, qz, qw)
             f.write(f"{t} {x} {y} {z} {qx} {qy} {qz} {qw}\n")
 
 
