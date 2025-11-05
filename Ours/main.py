@@ -189,7 +189,7 @@ class MultiAgentSystem:
                 #print("keyframes after update", key_frames.T_WC[i])
                 T_WC = as_SE3(key_frames[i].T_WC)
                 x, y, z, qx, qy, qz, qw = T_WC.data.numpy().reshape(-1)
-                print("save results tmp:", x, y, z, qx, qy, qz, qw )
+                #print("save results tmp:", x, y, z, qx, qy, qz, qw )
 
             # Step 5: Save results
             if self.agents[agent_id].dataset.save_results:

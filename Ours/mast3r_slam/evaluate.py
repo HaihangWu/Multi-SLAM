@@ -32,6 +32,7 @@ def save_traj(
     logdir = pathlib.Path(logdir)
     logdir.mkdir(exist_ok=True, parents=True)
     logfile = logdir / logfile
+    print(logdir,logfile,logfile)
     with open(logfile, "w") as f:
         # for keyframe_id in frames.keyframe_ids:
         for i in range(len(frames)):
@@ -43,7 +44,7 @@ def save_traj(
             if intrinsics is None:
                 T_WC = as_SE3(keyframe.T_WC)
                 # T_WC = as_SE3(T_sim3) #NEW
-                print("save results 1:")
+                #print("save results 1:")
             else:
                 T_WC = intrinsics.refine_pose_with_calibration(keyframe) #?
             x, y, z, qx, qy, qz, qw = T_WC.data.numpy().reshape(-1)
