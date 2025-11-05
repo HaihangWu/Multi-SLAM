@@ -17,6 +17,7 @@ import tqdm
 import cv2
 import numpy as np
 from mast3r_slam.frame import SharedKeyframes
+from mast3r_slam.lietorch_utils import as_SE3
 
 
 class MultiAgentSystem:
@@ -96,7 +97,7 @@ class MultiAgentSystem:
                     kf.K = kf.K.to(device, non_blocking=True)
 
                 global_kfs.append(kf)
-                print("initial keyframes", self.keyframes[agent_id].T_WC[i])
+                #print("initial keyframes", self.keyframes[agent_id].T_WC[i])
                 # # Graph Construction
                 # kf_idx = []
                 # # k to previous consecutive keyframes
@@ -182,6 +183,13 @@ class MultiAgentSystem:
                 print("keyframes before update",self.keyframes[agent_id].T_WC[i - start],"tmp",T_WC_tmp)
                 self.keyframes[agent_id].update_T_WCs(T_WC_tmp, i - start)
                 print("keyframes after update", self.keyframes[agent_id].T_WC[i - start])
+
+            key_frames=self.keyframes[agent_id]
+            for i in range(len(key_frames)):
+                print("keyframes after update", key_frames.T_WC[i])
+                T_WC = as_SE3(key_frames[i].T_WC)
+                x, y, z, qx, qy, qz, qw = T_WC.data.numpy().reshape(-1)
+                print("save results:", x, y, z, qx, qy, qz, qw )
 
             # Step 5: Save results
             if self.agents[agent_id].dataset.save_results:
