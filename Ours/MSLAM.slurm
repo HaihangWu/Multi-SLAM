@@ -43,4 +43,5 @@ conda activate slam
 
 export CUDA_LAUNCH_BLOCKING=1
 
-bash ./scripts/eval_MA.sh --no-calib
+bash ./scripts/eval_MA.sh
+#bash ./scripts/eval_MA.sh --no-calib
