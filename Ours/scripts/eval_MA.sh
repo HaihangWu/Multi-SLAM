@@ -41,13 +41,13 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-#if [ "$print_only" = false ]; then
-#        if [ "$no_calib" = true ]; then
-#            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/no_calib/ --config config/eval_no_calib.yaml
-#        else
-#            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/calib/ --config config/eval_calib.yaml
-#        fi
-#fi
+if [ "$print_only" = false ]; then
+        if [ "$no_calib" = true ]; then
+            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/no_calib/ --config config/eval_no_calib.yaml
+        else
+            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/calib/ --config config/eval_calib.yaml
+        fi
+fi
 
 for dataset in ${datasets[@]}; do
     dataset_name="$base_dataset_path""$dataset"/
