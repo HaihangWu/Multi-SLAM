@@ -42,7 +42,12 @@ def save_traj(
             else:
                 T_WC = intrinsics.refine_pose_with_calibration(keyframe)
             x, y, z, qx, qy, qz, qw = T_WC.data.numpy().reshape(-1)
+            print("write:",x, y, z, qx, qy, qz, qw)
             f.write(f"{t} {x} {y} {z} {qx} {qy} {qz} {qw}\n")
+    with open(logfile, "r") as f:
+        for line in f:
+            print("read:",line.strip())  # removes newline characters
+
 
 
 def save_reconstruction(savedir, filename, keyframes, c_conf_threshold):
