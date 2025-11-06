@@ -59,7 +59,7 @@ for dataset in ${datasets[@]}; do
                --GT groundtruths/${MA_dir}/$dataset.txt  \
                --ResDir logs/${MA_dir}/no_calib/$dataset
     else
-        evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/calib/$dataset/results.txt -as
+        #evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/calib/$dataset/results.txt -as
     fi
 
 done
