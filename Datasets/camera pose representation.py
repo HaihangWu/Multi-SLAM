@@ -1,8 +1,8 @@
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 
-input_file = r"E:\MA_ADT\room1\agent_0\traj.txt"       # path to your input text file
-output_file = r"C:\Users\hthh1\Downloads\room1_agent0.txt"
+input_file = r"C:\Users\hthh1\Downloads\MA_Replica\apart2\agent_0\traj.txt"       # path to your input text file
+output_file = r"C:\Users\hthh1\Downloads\apart2_agent_0.txt"
 
 poses = []
 with open(input_file, "r") as f:
