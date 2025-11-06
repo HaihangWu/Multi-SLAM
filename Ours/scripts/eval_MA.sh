@@ -15,10 +15,10 @@ datasets=(
 #    office0_agent_1
 #    apart0_agent_0
 #    apart0_agent_1
-    apart1_agent_0
-    apart1_agent_1
-#    apart2_agent_0
-#    apart2_agent_1
+#    apart1_agent_0
+#    apart1_agent_1
+    apart2_agent_0
+    apart2_agent_1
 )
 
 
