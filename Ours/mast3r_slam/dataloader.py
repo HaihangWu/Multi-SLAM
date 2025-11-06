@@ -165,14 +165,20 @@ class MAReplicaDataset(MonocularDataset):
     def __init__(self, dataset_path):
         super().__init__()
         self.dataset_path = pathlib.Path(dataset_path)
-        self.rgb_files = natsorted(
-            list((self.dataset_path).glob("frame*.jpg"))
-        )
-        self.timestamps = np.arange(0, len(self.rgb_files)).astype(self.dtype)
+
+        # Collect RGB images
+        self.rgb_files = natsorted(list(self.dataset_path.glob("frame*.jpg")))
+        self.timestamps = np.arange(len(self.rgb_files)).astype(self.dtype)
+
+        # Original image resolution
+        W, H = 1200, 680
+
+        # Camera intrinsics for Replica
         fx, fy, cx, cy = 600.0, 600.0, 599.5, 339.5
-        self.camera_intrinsics = Intrinsics.from_calib(
-            self.img_size, 1200, 680, [fx, fy, cx, cy]
-        )
+        calib = [fx, fy, cx, cy]
+
+        # Create Intrinsics object, scaling will be handled automatically
+        self.camera_intrinsics = Intrinsics.from_calib(self.img_size, W, H, calib)
 
 class RealsenseDataset(MonocularDataset):
     def __init__(self):
