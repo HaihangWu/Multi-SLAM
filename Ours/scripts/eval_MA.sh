@@ -53,7 +53,7 @@ for dataset in ${datasets[@]}; do
     dataset_name="$base_dataset_path""$dataset"/
     echo ${dataset_name}
     if [ "$no_calib" = true ]; then
-        evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/no_calib/$dataset/results.txt -as
+        #evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/no_calib/$dataset/results.txt -as
         python ./mast3r_slam/evaluation_reconstruction.py --base_dataset_path \
               "$base_dataset_path" --dataset "${dataset}" \
                --GT groundtruths/${MA_dir}/$dataset.txt  \
