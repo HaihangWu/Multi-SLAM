@@ -11,14 +11,14 @@
 
 base_dataset_path="/data/gpfs/projects/punim0512/data/MA_Replica/"
 datasets=(
-#    office0_agent_0
-#    office0_agent_1
+    office0_agent_0
+    office0_agent_1
 #    apart0_agent_0
 #    apart0_agent_1
 #    apart1_agent_0
 #    apart1_agent_1
-    apart2_agent_0
-    apart2_agent_1
+#    apart2_agent_0
+#    apart2_agent_1
 )
 
 
@@ -41,24 +41,23 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-if [ "$print_only" = false ]; then
-#    for i in 0 1; do
-#    for dataset in ${datasets[@]}; do
-#        dataset_name="$dataset_path""$dataset"/
-#        echo "Processing dataset: $full_dataset_path"
-        if [ "$no_calib" = true ]; then
-            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/no_calib/ --config config/eval_no_calib.yaml
-        else
-            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/calib/ --config config/eval_calib.yaml
-        fi
-#    wait
-fi
+#if [ "$print_only" = false ]; then
+#        if [ "$no_calib" = true ]; then
+#            python main.py --base_dataset_path "$base_dataset_path"  --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/no_calib/ --config config/eval_no_calib.yaml
+#        else
+#            python main.py --base_dataset_path "$base_dataset_path" --dataset "${datasets[@]}" --no-viz --save-as ${MA_dir}/calib/ --config config/eval_calib.yaml
+#        fi
+#fi
 
 for dataset in ${datasets[@]}; do
     dataset_name="$base_dataset_path""$dataset"/
     echo ${dataset_name}
     if [ "$no_calib" = true ]; then
         evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/no_calib/$dataset/results.txt -as
+        python ./mast3r_slam/evaluation_reconstruction.py --base_dataset_path \
+              "$base_dataset_path" --dataset "${dataset}" \
+               --GT groundtruths/${MA_dir}/$dataset.txt  \
+               --ResDir logs/${MA_dir}/no_calib/$dataset
     else
         evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/calib/$dataset/results.txt -as
     fi

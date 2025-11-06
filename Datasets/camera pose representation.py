@@ -1,8 +1,8 @@
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 
-input_file = r"C:\Users\hthh1\Downloads\MA_Replica\apart2\agent_0\traj.txt"       # path to your input text file
-output_file = r"C:\Users\hthh1\Downloads\apart2_agent_0.txt"
+input_file = r"C:\Users\hthh1\Downloads\agent1\processed_poses.txt"       # path to your input text file
+output_file = r"C:\Users\hthh1\Downloads\apart2_agent_1.txt"
 
 poses = []
 with open(input_file, "r") as f:
@@ -14,10 +14,14 @@ num_poses = len(lines)
 with open(output_file, "w") as out:
     for i in range(num_poses):
         mat_lines = lines[i]
-        line_digit= [float(x) for x in mat_lines.split()]
-        mat = np.array([line_digit[i:i+4] for i in range(0, 16, 4)])
+        line_digit = [float(x) for x in mat_lines.split()]
+        mat = np.array([line_digit[j:j + 4] for j in range(0, 16, 4)])  # 4x4 matrix
+        mat = mat.T
+
+        # Keep mat as a NumPy array; no flattening here
         R_mat = mat[:3, :3]
         t_vec = mat[:3, 3]
+
         q = R.from_matrix(R_mat).as_quat()  # (x, y, z, w)
         out.write(f"{i} {t_vec[0]} {t_vec[1]} {t_vec[2]} {q[0]} {q[1]} {q[2]} {q[3]}\n")
 
