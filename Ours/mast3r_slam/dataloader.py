@@ -360,7 +360,7 @@ def load_dataset(dataset_path):
     if "MA_ADT" in split_dataset_type:
         return MAADTDataset(dataset_path)
     if  "MA_Replica" in split_dataset_type:
-        return MAADTDataset(MAReplicaDataset)
+        return MAReplicaDataset(dataset_path)
 
     ext = split_dataset_type[-1].split(".")[-1]
     if ext in ["mp4", "avi", "MOV", "mov"]:
