@@ -57,10 +57,11 @@ fi
 for dataset in ${datasets[@]}; do
     dataset_name="$base_dataset_path""$dataset"/
     echo ${dataset_name}
+    MA_dir=$(basename "$base_dataset_path")
     if [ "$no_calib" = true ]; then
-        evo_ape tum groundtruths/MA_ADT/$dataset.txt logs/MA_ADT/no_calib/$dataset/results.txt -as
+        evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/no_calib/$dataset/results.txt -as
     else
-        evo_ape tum groundtruths/MA_ADT/$dataset.txt logs/MA_ADT/calib/$dataset/results.txt -as
+        evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/calib/$dataset/results.txt -as
     fi
 
 done
