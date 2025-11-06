@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 from mast3r_slam.frame import SharedKeyframes
 from mast3r_slam.lietorch_utils import as_SE3
+import sys
 
 
 class MultiAgentSystem:
@@ -74,7 +75,21 @@ class MultiAgentSystem:
         h, w = self.agents[0].dataset.get_img_shape()[0]
         print("h,w",h,w)
         global_kfs = SharedKeyframes(manager, h, w, device=device)
-        global_factor_graph = FactorGraph(self.model, global_kfs, device=device)
+
+        has_calib = self.agents[0].dataset.has_calib()
+        use_calib = config["use_calib"]
+        if use_calib and not has_calib:
+            print("[Warning] No calibration provided for this dataset!")
+            sys.exit(0)
+        K = None
+        if use_calib:
+            K = torch.from_numpy(self.agents[0].dataset.camera_intrinsics.K_frame).to(
+                device, dtype=torch.float32
+            )
+            global_kfs.set_intrinsics(K)
+
+
+        global_factor_graph = FactorGraph(self.model, global_kfs, K, device=device)
 
         agent_offsets = {}
         offset = 0
