@@ -58,7 +58,7 @@ for dataset in ${datasets[@]}; do
       evo_ape tum groundtruths/${MA_dir}/$dataset.txt logs/${MA_dir}/calib/$dataset/results.txt -as
       python ./mast3r_slam/evaluation_reconstruction.py --base_dataset_path "$base_dataset_path" \
             --dataset "${dataset}" --GT groundtruths/${MA_dir}/$dataset.txt \
-             --ResDir logs/${MA_dir}/no_calib/$dataset
+             --ResDir logs/${MA_dir}/calib/$dataset
     fi
 
 done

@@ -41,7 +41,7 @@ eval "$(conda shell.bash hook)"
 conda deactivate
 conda activate slam
 
-export CUDA_LAUNCH_BLOCKING=1
+#export CUDA_LAUNCH_BLOCKING=1
 
 bash ./scripts/eval_MA.sh
 #bash ./scripts/eval_MA.sh --no-calib
