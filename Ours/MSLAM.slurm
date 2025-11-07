@@ -20,7 +20,7 @@
 #SBATCH --qos gpgpudeeplearn
 
 # Request different amount of resources for different nodes
-#SBATCH --constraint=[dlg4]
+#SBATCH --constraint=[dlg4|dlg5|dlg6]
 # --constraint=[dlg5]
 # --constraint=[dlg6]
 # --nodes=1                # node count
