@@ -11,14 +11,14 @@
 
 base_dataset_path="/data/gpfs/projects/punim0512/data/MA_Replica/"
 datasets=(
-    office0_agent_0
-    office0_agent_1
+#    office0_agent_0
+#    office0_agent_1
 #    apart0_agent_0
 #    apart0_agent_1
 #    apart1_agent_0
 #    apart1_agent_1
-#    apart2_agent_0
-#    apart2_agent_1
+    apart2_agent_0
+    apart2_agent_1
 )
 
 
