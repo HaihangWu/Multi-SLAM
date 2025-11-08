@@ -118,7 +118,7 @@ def align_icp(source_pcd, target_pcd, voxel_size=0.02):
 
 
 
-def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=100):
+def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=50):
     """
     Compute accuracy, completion, and Chamfer distance between two point sets.
     Both metrics are truncated by a 0.5 m maximum distance threshold
@@ -141,13 +141,15 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=100):
     for i in range(0, n_est_points, batch_size):
         est_batch = pts_est[i:i + batch_size]
         # Calculate distance from each point in est_batch to all points in ref
-        d_est2ref = torch.norm(est_batch.unsqueeze(1) - pts_ref.unsqueeze(0), dim=2, p=2)
+        # d_est2ref = torch.norm(est_batch.unsqueeze(1) - pts_ref.unsqueeze(0), dim=2, p=2)
+        d_est2ref = torch.cdist(est_batch.unsqueeze(1), pts_ref.unsqueeze(0), p=2)
         accuracy_list.append(torch.minimum(d_est2ref, threshold_tensor))
 
     for i in range(0, n_ref_points, batch_size):
         ref_batch = pts_ref[i:i + batch_size]
         # Calculate distance from each point in ref_batch to all points in est
-        d_ref2est = torch.norm(ref_batch.unsqueeze(1) - pts_est.unsqueeze(0), dim=2, p=2)
+        # d_ref2est = torch.norm(ref_batch.unsqueeze(1) - pts_est.unsqueeze(0), dim=2, p=2)
+        d_ref2est = torch.cdist(ref_batch.unsqueeze(1), pts_est.unsqueeze(0), p=2)
         completion_list.append(torch.minimum(d_ref2est, threshold_tensor))
 
     # Compute Chamfer distance using the accumulated batch-wise results
@@ -203,6 +205,7 @@ if __name__ == "__main__":
     print("ICP alignment complete.")
 
     print("Evaluating reconstruction (threshold = 0.5 m)...")
+    torch.cuda.empty_cache()
     accuracy, completion, chamfer = chamfer_metrics(
         np.asarray(est_aligned.points),
         np.asarray(ref_pcd.points),
