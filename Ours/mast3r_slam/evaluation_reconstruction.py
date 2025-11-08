@@ -157,6 +157,8 @@ def align_icp(source_pcd, target_pcd, voxel_size=0.02):
     # Apply the transformation
     source_pcd.transform(reg.transformation)
 
+    return source_pcd, reg.transformation
+
 
 def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=1000):
     """
