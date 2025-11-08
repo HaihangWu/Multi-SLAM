@@ -67,11 +67,14 @@ def build_reference_pcd_keyframes(depth_dir, gt_pose_file, keyframe_indices, K):
     R_ref = first_pose_ref[:3, :3]  # Rotation matrix
     t_ref = first_pose_ref[:3, 3]  # Translation vector
 
-    # Inverse transformation for the reference frame
-    est_first_frame_R = R_ref.T  # Inverse of the rotation is the transpose
 
-    est_first_frame_t = -torch.matmul(est_first_frame_R, torch.tensor(t_ref, dtype=torch.float32,
-                                                                      device=device))
+    # Inverse transformation for the reference frame
+    est_first_frame_R = torch.tensor(R_ref.T, dtype=torch.float32, device=device)  # Convert to PyTorch tensor
+    t_ref_tensor = torch.tensor(t_ref, dtype=torch.float32,
+                                device=device)  # Convert t_ref to tensor on the correct device
+
+    # Apply matrix multiplication to compute the inverse translation
+    est_first_frame_t = -torch.matmul(est_first_frame_R, t_ref_tensor)
 
     # Construct the transformation matrix (4x4)
     est_first_frame_T_WC = torch.eye(4, dtype=torch.float32)
