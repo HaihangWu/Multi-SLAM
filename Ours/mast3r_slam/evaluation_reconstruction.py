@@ -117,7 +117,6 @@ def align_icp(source_pcd, target_pcd, voxel_size=0.02):
     return source_pcd, reg.transformation
 
 
-
 def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=50):
     """
     Compute accuracy, completion, and Chamfer distance between two point sets.
@@ -134,27 +133,34 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=50):
     n_est_points = pts_est.shape[0]
     n_ref_points = pts_ref.shape[0]
 
-    accuracy_list = []
-    completion_list = []
+    accuracy_sum = 0.0
+    completion_sum = 0.0
+    num_points = 0
 
     # Process in batches
+    print("first",
+          f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
     for i in range(0, n_est_points, batch_size):
+        print(i,
+            f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
         est_batch = pts_est[i:i + batch_size]
         # Calculate distance from each point in est_batch to all points in ref
-        # d_est2ref = torch.norm(est_batch.unsqueeze(1) - pts_ref.unsqueeze(0), dim=2, p=2)
-        d_est2ref = torch.cdist(est_batch.unsqueeze(1), pts_ref.unsqueeze(0), p=2)
-        accuracy_list.append(torch.minimum(d_est2ref, threshold_tensor))
+        d_est2ref = torch.cdist(est_batch, pts_ref, p=2)
+        accuracy_sum += torch.sum(torch.minimum(d_est2ref, threshold_tensor))
 
+    print("second",
+          f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
     for i in range(0, n_ref_points, batch_size):
+        print(i,
+            f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
         ref_batch = pts_ref[i:i + batch_size]
         # Calculate distance from each point in ref_batch to all points in est
-        # d_ref2est = torch.norm(ref_batch.unsqueeze(1) - pts_est.unsqueeze(0), dim=2, p=2)
-        d_ref2est = torch.cdist(ref_batch.unsqueeze(1), pts_est.unsqueeze(0), p=2)
-        completion_list.append(torch.minimum(d_ref2est, threshold_tensor))
+        d_ref2est = torch.cdist(ref_batch, pts_est, p=2)
+        completion_sum += torch.sum(torch.minimum(d_ref2est, threshold_tensor))
 
-    # Compute Chamfer distance using the accumulated batch-wise results
-    accuracy = torch.sqrt(torch.mean(torch.cat(accuracy_list) ** 2)).cpu().item()
-    completion = torch.sqrt(torch.mean(torch.cat(completion_list) ** 2)).cpu().item()
+    # Compute Chamfer distance incrementally
+    accuracy = torch.sqrt(accuracy_sum / n_est_points).cpu().item()
+    completion = torch.sqrt(completion_sum / n_ref_points).cpu().item()
     chamfer = 0.5 * (accuracy + completion)
 
     return accuracy, completion, chamfer
@@ -167,6 +173,7 @@ if __name__ == "__main__":
     parser.add_argument("--GT", required=True, help="Path to ground truth pose file")
     parser.add_argument("--ResDir", required=True, help="Directory containing reconstruction results")
     args = parser.parse_args()
+
 
     parts = args.dataset.split("_", 1)
     if len(parts) != 2:
@@ -205,7 +212,6 @@ if __name__ == "__main__":
     print("ICP alignment complete.")
 
     print("Evaluating reconstruction (threshold = 0.5 m)...")
-    torch.cuda.empty_cache()
     accuracy, completion, chamfer = chamfer_metrics(
         np.asarray(est_aligned.points),
         np.asarray(ref_pcd.points),
