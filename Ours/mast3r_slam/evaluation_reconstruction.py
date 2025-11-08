@@ -140,6 +140,43 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5):
     return accuracy, completion, chamfer
 
 
+def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=10000):
+    """
+    Compute accuracy, completion, and Chamfer distance between two point sets.
+    Both metrics are truncated by a 0.5 m maximum distance threshold
+    and averaged across all points.
+    """
+    pts_est = torch.tensor(pts_est, dtype=torch.float32, device=device)
+    pts_ref = torch.tensor(pts_ref, dtype=torch.float32, device=device)
+
+    # Split points into batches to reduce memory consumption
+    n_est_points = pts_est.shape[0]
+    n_ref_points = pts_ref.shape[0]
+
+    accuracy_list = []
+    completion_list = []
+
+    # Process in batches
+    for i in range(0, n_est_points, batch_size):
+        est_batch = pts_est[i:i + batch_size]
+        # Calculate distance from each point in est_batch to all points in ref
+        d_est2ref = torch.norm(est_batch.unsqueeze(1) - pts_ref.unsqueeze(0), dim=2, p=2)
+        accuracy_list.append(torch.minimum(d_est2ref, threshold))
+
+    for i in range(0, n_ref_points, batch_size):
+        ref_batch = pts_ref[i:i + batch_size]
+        # Calculate distance from each point in ref_batch to all points in est
+        d_ref2est = torch.norm(ref_batch.unsqueeze(1) - pts_est.unsqueeze(0), dim=2, p=2)
+        completion_list.append(torch.minimum(d_ref2est, threshold))
+
+    # Compute Chamfer distance using the accumulated batch-wise results
+    accuracy = torch.sqrt(torch.mean(torch.cat(accuracy_list) ** 2)).cpu().item()
+    completion = torch.sqrt(torch.mean(torch.cat(completion_list) ** 2)).cpu().item()
+    chamfer = 0.5 * (accuracy + completion)
+
+    return accuracy, completion, chamfer
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--base_dataset_path", required=True, help="Base dataset directory path")
