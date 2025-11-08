@@ -170,7 +170,7 @@ def align_icp(source_pcd, target_pcd, voxel_size=0.02):
     return source_pcd, reg.transformation
 
 
-def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=1000):
+def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=100):
     """
     Compute accuracy, completion, and Chamfer distance between two point sets.
     Both metrics are truncated by a 0.5 m maximum distance threshold
