@@ -51,22 +51,6 @@ def backproject_depth_to_points(depth, K, T_WC):
     pts_world = (T_WC[:3, :3] @ pts_cam.T + T_WC[:3, 3:4]).T
     return pts_world.cpu().numpy()
 
-    h, w = depth.shape
-    i, j = torch.meshgrid(torch.arange(w, device=device), torch.arange(h, device=device))
-    z = torch.tensor(depth.flatten(), dtype=torch.float32, device=device) / 1000.0  # Convert mm → m if applicable
-    x = (i.flatten() - K[0, 2]) * z / K[0, 0]
-    y = (j.flatten() - K[1, 2]) * z / K[1, 1]
-    pts_cam = torch.stack([x, y, z], dim=1)
-    pts_cam = pts_cam[z > 0]
-
-    # Convert T_WC[:3, :3] to a PyTorch tensor for matrix multiplication
-    R = torch.tensor(T_WC[:3, :3], dtype=torch.float32, device=device)  # Rotation matrix as tensor
-    t = torch.tensor(T_WC[:3, 3], dtype=torch.float32, device=device)  # Translation vector as tensor
-
-    # Apply transformation to world coordinates
-    pts_world = torch.matmul(pts_cam, R.T) + t  # Use matrix multiplication for rotation and addition for translation
-    return pts_world.cpu().numpy()
-
 
 def build_reference_pcd_keyframes(depth_dir, gt_pose_file, keyframe_indices, K):
     """Back-project only keyframes to build reference point cloud."""
