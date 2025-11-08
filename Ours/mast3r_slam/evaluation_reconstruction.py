@@ -97,11 +97,15 @@ def align_icp(source_pcd, target_pcd, voxel_size=0.02):
     source_points = voxel_down_sample_gpu(source_pcd, voxel_size)
     target_points = voxel_down_sample_gpu(target_pcd, voxel_size)
 
+    # Convert the downsampled points to numpy float64 type for Open3D
+    source_points_np = source_points.cpu().numpy().astype(np.float64)
+    target_points_np = target_points.cpu().numpy().astype(np.float64)
+
     # ICP registration logic using GPU-based downsampled point clouds
     threshold = 0.1
     reg = o3d.pipelines.registration.registration_icp(
-        o3d.geometry.PointCloud(o3d.utility.Vector3dVector(source_points.cpu().numpy())),
-        o3d.geometry.PointCloud(o3d.utility.Vector3dVector(target_points.cpu().numpy())),
+        o3d.geometry.PointCloud(o3d.utility.Vector3dVector(source_points_np)),
+        o3d.geometry.PointCloud(o3d.utility.Vector3dVector(target_points_np)),
         threshold, np.eye(4),
         o3d.pipelines.registration.TransformationEstimationPointToPoint()
     )
