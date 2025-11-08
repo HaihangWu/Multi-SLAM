@@ -117,7 +117,7 @@ def align_icp(source_pcd, target_pcd, voxel_size=0.02):
     return source_pcd, reg.transformation
 
 
-def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=50):
+def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=1000):
     """
     Compute accuracy, completion, and Chamfer distance between two point sets.
     Both metrics are truncated by a 0.5 m maximum distance threshold
@@ -141,8 +141,8 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=50):
     print("first",
           f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
     for i in range(0, n_est_points, batch_size):
-        print(i,
-            f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
+        # print(i,
+        #     f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
         est_batch = pts_est[i:i + batch_size]
         # Calculate distance from each point in est_batch to all points in ref
         d_est2ref = torch.cdist(est_batch, pts_ref, p=2)
@@ -151,8 +151,8 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=50):
     print("second",
           f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
     for i in range(0, n_ref_points, batch_size):
-        print(i,
-            f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
+        # print(i,
+        #     f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
         ref_batch = pts_ref[i:i + batch_size]
         # Calculate distance from each point in ref_batch to all points in est
         d_ref2est = torch.cdist(ref_batch, pts_est, p=2)
