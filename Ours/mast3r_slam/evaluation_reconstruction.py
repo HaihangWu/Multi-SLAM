@@ -47,8 +47,12 @@ def backproject_depth_to_points(depth, K, T_WC):
     pts_cam = torch.stack([x, y, z], dim=1)
     pts_cam = pts_cam[z > 0]
 
+    # Convert T_WC[:3, :3] to a PyTorch tensor for matrix multiplication
+    R = torch.tensor(T_WC[:3, :3], dtype=torch.float32, device=device)  # Rotation matrix as tensor
+    t = torch.tensor(T_WC[:3, 3], dtype=torch.float32, device=device)  # Translation vector as tensor
+
     # Apply transformation to world coordinates
-    pts_world = (T_WC[:3, :3] @ pts_cam.T + T_WC[:3, 3:4]).T
+    pts_world = torch.matmul(pts_cam, R.T) + t  # Use matrix multiplication for rotation and addition for translation
     return pts_world.cpu().numpy()
 
 
