@@ -144,9 +144,10 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=1000):
         # print(i,
         #     f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
         est_batch = pts_est[i:i + batch_size]
-        # Calculate distance from each point in est_batch to all points in ref
         d_est2ref = torch.cdist(est_batch, pts_ref, p=2)
-        accuracy_sum += torch.sum(torch.minimum(d_est2ref, threshold_tensor))
+        min_d_est2ref, _ = torch.min(d_est2ref,dim=1)
+        min_d_est2ref = torch.minimum(min_d_est2ref, threshold_tensor)
+        accuracy_sum += torch.sum(min_d_est2ref)
 
     print("second",
           f"Memory before: Allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, Reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB")
@@ -156,7 +157,9 @@ def chamfer_metrics(pts_est, pts_ref, threshold=0.5, batch_size=1000):
         ref_batch = pts_ref[i:i + batch_size]
         # Calculate distance from each point in ref_batch to all points in est
         d_ref2est = torch.cdist(ref_batch, pts_est, p=2)
-        completion_sum += torch.sum(torch.minimum(d_ref2est, threshold_tensor))
+        min_d_est2ref, _ = torch.min(d_ref2est,dim=1)
+        min_d_est2ref = torch.minimum(min_d_est2ref, threshold_tensor)
+        completion_sum += torch.sum(torch.minimum(min_d_est2ref, threshold_tensor))
 
     # Compute Chamfer distance incrementally
     accuracy = torch.sqrt(accuracy_sum / n_est_points).cpu().item()
