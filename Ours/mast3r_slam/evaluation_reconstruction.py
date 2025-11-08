@@ -14,11 +14,20 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def load_keyframe_indices(res_pose_file):
     """Return a list of integers corresponding to keyframe indices."""
     indices = []
+    poses = []
     with open(res_pose_file, "r") as f:
         for line in f:
             idx = int(float(line.strip().split()[0]))  # first column is frame index
             indices.append(idx)
-    return indices
+            vals = list(map(float, line.strip().split()))
+            if len(vals) == 8:
+                t = np.array(vals[1:4])
+                qx, qy, qz, qw = vals[4:]
+                R = o3d.geometry.get_rotation_matrix_from_quaternion([qw, qx, qy, qz])
+                T = np.eye(4)
+                T[:3, :3], T[:3, 3] = R, t
+                poses.append(T)
+    return indices,poses[0]
 
 
 def load_camera_poses(gt_pose_file):
@@ -55,31 +64,27 @@ def backproject_depth_to_points(depth, K, T_WC):
     pts_world = torch.matmul(pts_cam, R.T) + t  # Use matrix multiplication for rotation and addition for translation
     return pts_world.cpu().numpy()
 
-
-def build_reference_pcd_keyframes(depth_dir, gt_pose_file, keyframe_indices, K):
-    """Back-project only keyframes to build reference point cloud, transforming to estimated frame."""
+def build_reference_pcd_keyframes(depth_dir, gt_pose_file, keyframe_indices, K, est_first_frame_pose):
+    """Back-project only keyframes to build reference point cloud, transforming relative to its first frame and then to the world frame."""
     poses = load_camera_poses(gt_pose_file)
 
     first_pose_ref = poses[0]  # First pose of the reference point cloud
 
-    # Calculate the transformation matrix to align the reference's first frame to the estimated frame
-    # Inverse of the reference frame's transformation (pose)
-    R_ref = first_pose_ref[:3, :3]  # Rotation matrix
-    t_ref = first_pose_ref[:3, 3]  # Translation vector
+    # Calculate the transformation matrix to align the reference's first frame to the world frame
+    R_ref = torch.tensor(first_pose_ref[:3, :3], dtype=torch.float32, device=device)  # Rotation matrix
+    t_ref = torch.tensor(first_pose_ref[:3, 3], dtype=torch.float32, device=device)  # Translation vector
 
+    # Convert the first frame pose of the estimated point cloud to a transformation matrix
+    est_first_frame_R = torch.tensor(est_first_frame_pose[:3, :3], dtype=torch.float32, device=device)
+    est_first_frame_t = torch.tensor(est_first_frame_pose[:3, 3], dtype=torch.float32, device=device)
 
-    # Inverse transformation for the reference frame
-    est_first_frame_R = torch.tensor(R_ref.T, dtype=torch.float32, device=device)  # Convert to PyTorch tensor
-    t_ref_tensor = torch.tensor(t_ref, dtype=torch.float32,
-                                device=device)  # Convert t_ref to tensor on the correct device
+    # Inverse transformation to bring the reference frame into its first frame
+    ref_to_first_frame_R = R_ref.T  # Inverse of the reference rotation (transpose)
+    ref_to_first_frame_t = -torch.matmul(ref_to_first_frame_R, t_ref)  # Inverse of the translation
 
-    # Apply matrix multiplication to compute the inverse translation
-    est_first_frame_t = -torch.matmul(est_first_frame_R, t_ref_tensor)
-
-    # Construct the transformation matrix (4x4)
-    est_first_frame_T_WC = torch.eye(4, dtype=torch.float32)
-    est_first_frame_T_WC[:3, :3] = est_first_frame_R
-    est_first_frame_T_WC[:3, 3] = est_first_frame_t
+    # Now, transform the reference points from the first frame to the world frame of the estimated point cloud
+    ref_to_est_R = est_first_frame_R  # Inverse of the estimated rotation
+    ref_to_est_t = torch.matmul(ref_to_est_R, est_first_frame_t)  # Inverse of the estimated translation
 
     # Use a list to store points on the GPU (use a list to avoid reallocation issues)
     all_points = []
@@ -96,19 +101,24 @@ def build_reference_pcd_keyframes(depth_dir, gt_pose_file, keyframe_indices, K):
         # Back-project to world coordinates using the reference frame pose
         pts_ref_world = backproject_depth_to_points(depth_tensor, K, poses[idx])
 
-        # Apply the inverse of the first frame's transformation to the reference points
+        # Apply the inverse of the reference frame transformation (first transformation)
         pts_ref_world_tensor = torch.tensor(pts_ref_world, dtype=torch.float32, device=device)
+        pts_ref_world_relative_first_frame = torch.matmul(pts_ref_world_tensor, ref_to_first_frame_R.T) + ref_to_first_frame_t
 
-        # Apply inverse transformation (i.e., transform reference points to estimated frame)
-        pts_ref_world_in_est_frame = torch.matmul(pts_ref_world_tensor, est_first_frame_R.T) - est_first_frame_t
+        # Apply the inverse transformation to the estimated frame (second transformation)
+        pts_ref_world_in_est_frame = torch.matmul(pts_ref_world_relative_first_frame, ref_to_est_R.T) + ref_to_est_t
 
         # Convert back to numpy for further use (if needed)
         all_points.append(pts_ref_world_in_est_frame.cpu().numpy())
 
+    # Concatenate all points and convert back to numpy
     all_points = torch.cat([torch.tensor(pts, dtype=torch.float32, device=device) for pts in all_points], dim=0)
     all_points_cpu = all_points.cpu().numpy()
 
+    # Return the point cloud in the estimated world coordinate system
     return o3d.geometry.PointCloud(o3d.utility.Vector3dVector(all_points_cpu))
+
+
 
 def voxel_down_sample_gpu(pcd, voxel_size):
     """Downsample point cloud on the GPU."""
@@ -245,9 +255,9 @@ if __name__ == "__main__":
                       [0, 0, 1.0]])
 
     print("Building reference point cloud...")
-    keyframe_indices = load_keyframe_indices(ResPose)
+    keyframe_indices,est_first_frame_pose = load_keyframe_indices(ResPose)
     print('keyframe indices',keyframe_indices)
-    ref_pcd = build_reference_pcd_keyframes(depth_dir, args.GT, keyframe_indices, K)
+    ref_pcd = build_reference_pcd_keyframes(depth_dir, args.GT, keyframe_indices, K,est_first_frame_pose)
     print(f"Reference PCD contains {len(ref_pcd.points)} points.")
 
     print("Loading estimated reconstruction...")
