@@ -126,7 +126,8 @@ if __name__ == "__main__":
                       [0,   0,    1.0]])
 
     print("Building reference point cloud...")
-    ref_pcd = build_reference_pcd_keyframes(depth_dir, args.GT, K)
+    keyframe_indices=load_keyframe_indices(ResPose)
+    ref_pcd = build_reference_pcd_keyframes(depth_dir, args.GT, keyframe_indices, K)
     print(f"Reference PCD contains {len(ref_pcd.points)} points.")
 
     print("Loading estimated reconstruction...")
