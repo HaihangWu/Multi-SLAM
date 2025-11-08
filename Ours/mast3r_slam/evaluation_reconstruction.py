@@ -86,7 +86,7 @@ def voxel_down_sample_gpu(pcd, voxel_size):
     voxel_grid = (points / voxel_size).floor()
     # Keep unique voxel grid points
     unique_voxels, inverse_indices = torch.unique(voxel_grid, dim=0, return_inverse=True)
-    downsampled_points = points[unique_voxels]
+    downsampled_points = points[unique_voxels.to(torch.int64)]  # Ensure indices are int64
 
     return downsampled_points
 
