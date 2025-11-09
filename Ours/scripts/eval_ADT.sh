@@ -1,25 +1,15 @@
 #!/bin/bash
-# base_dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/"
-#datasets=(
-#    room0_agent_0
-#    room0_agent_1
-#    room0_agent_2
-#    room1_agent_0
-#    room1_agent_1
-#    room1_agent_2
-#)
-
-base_dataset_path="/data/gpfs/projects/punim0512/data/MA_Replica/"
+ base_dataset_path="/data/gpfs/projects/punim0512/data/MA_ADT/"
 datasets=(
-    office0_agent_0
-    office0_agent_1
-    apart0_agent_0
-    apart0_agent_1
-    apart1_agent_0
-    apart1_agent_1
-    apart2_agent_0
-    apart2_agent_1
+    room0_agent_0
+    room0_agent_1
+    room0_agent_2
+    room1_agent_0
+    room1_agent_1
+    room1_agent_2
 )
+
+
 
 MA_dir=$(basename "$base_dataset_path")
 no_calib=false
