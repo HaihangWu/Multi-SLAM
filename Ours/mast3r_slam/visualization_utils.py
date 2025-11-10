@@ -3,7 +3,7 @@ import imgui
 import matplotlib
 import torch
 import numpy as np
-from in3d.geometry import LineGeometry
+from Ours.thirdparty.in3d.in3d.geometry import LineGeometry
 
 
 @functools.cache

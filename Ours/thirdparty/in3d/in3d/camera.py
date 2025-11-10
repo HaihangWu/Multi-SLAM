@@ -2,8 +2,8 @@ import glm
 import numpy as np
 import imgui
 
-from in3d.logger import setup_logger
-from in3d.pose_utils import exp_angle_axis, translation_matrix
+from .logger import setup_logger
+from .pose_utils import exp_angle_axis, translation_matrix
 
 logger = setup_logger()
 
